@@ -1,19 +1,27 @@
 package com.datazuul.bookscanner.core;
 
-import chdk.ptp.java.CameraFactory;
 import chdk.ptp.java.ICamera;
 import chdk.ptp.java.connection.CameraUsbDevice;
 import chdk.ptp.java.connection.UsbUtils;
-import chdk.ptp.java.exception.CameraNotFoundException;
+import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.CameraShootException;
+import chdk.ptp.java.exception.GenericCameraException;
+import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
+import com.datazuul.bookscanner.core.devices.CameraFactory;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 
 public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
@@ -70,11 +78,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   }// </editor-fold>//GEN-END:initComponents
 
   private void shootButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shootButtonActionPerformed
-    BufferedImage image = shoot();
-    if (image != null) {
-      this.leftScanPanel.imagePanel.setImage(image);
-      this.leftScanPanel.imagePanel.repaint();
-    }
+    shoot();
   }//GEN-LAST:event_shootButtonActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -87,42 +91,86 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   private javax.swing.JList<String> thumbnailsList;
   // End of variables declaration//GEN-END:variables
 
-  private BufferedImage shoot() {
+  private void shoot() {
     try {
       Collection<CameraUsbDevice> cameras = UsbUtils.listAttachedCameras();
       for (CameraUsbDevice cameraUsbDevice : cameras) {
         System.out.println(cameraUsbDevice);
       }
-      ICamera cam = CameraFactory.getCamera();
-      if (cam != null) {
-        byte portNumber = cam.getUsbDevice().getParentUsbPort().getPortNumber();
-        StringBuilder sbCameraName = new StringBuilder();
-        sbCameraName.append(cam.getUsbDevice().getProductString());
-        sbCameraName.append(" ").append(cam.getCameraInfo().name());
-        sbCameraName.append(" - Port: ").append(portNumber);
-        
-        this.leftScanPanel.cameraPanel.setCameraName(sbCameraName.toString());
-        cam.connect();
-        boolean isConnected = true;
-        cam.setOperationMode(CameraMode.RECORD);
-        cam.setFocusMode(FocusMode.AUTO);
-        BufferedImage image = cam.getPicture();
-        System.out.println("" + image.getWidth() + " x " + image.getWidth() + " pixels");
-        File outputfile = new File(System.getProperty("user.home") + File.separator + "saved.png");
-        ImageIO.write(image, "png", outputfile);
-        System.out.println("saved to " + outputfile.getAbsolutePath());
-        cam.disconnect();
-        return image;
-      } 
-    } catch (CameraNotFoundException ex) {
-      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.WARNING, "no camera detected");
+      if (cameras.isEmpty() || cameras.size() == 1) {
+        int camerasCount = cameras.size();
+        String message;
+        if (camerasCount == 0) {
+          message = "No cameras ";
+        } else {
+          message = "Only one camera ";
+        }
+        NotifyDescriptor d = new NotifyDescriptor(
+                message + "found. Please attach two cameras before retrying again.", // Dialog message
+                "Warning", // Dialog title
+                NotifyDescriptor.DEFAULT_OPTION, // Buttons
+                NotifyDescriptor.WARNING_MESSAGE, // Symbol
+                null, // Own buttons as Object[]
+                null); // Additional buttons as Object[]
+        DialogDisplayer.getDefault().notify(d);
+        return;
+      }
+
+      // now we have two cameras (or more) connected
+      ICamera cam1 = CameraFactory.getCamera((CameraUsbDevice) cameras.toArray()[0]);
+      ICamera cam2 = CameraFactory.getCamera((CameraUsbDevice) cameras.toArray()[1]);
+
+      if (cam1 != null && cam2 != null) {
+        String cam1Description = getCameraDescription(cam1);
+        this.leftScanPanel.cameraPanel.setCameraName(cam1Description.toString());
+
+        String cam2Description = getCameraDescription(cam2);
+        this.rightScanPanel.cameraPanel.setCameraName(cam2Description.toString());
+
+        BufferedImage cam1Image = captureAndSaveImage(cam1, "png", "image-00001.png");
+        if (cam1Image != null) {
+          this.leftScanPanel.imagePanel.setImage(cam1Image);
+          this.leftScanPanel.imagePanel.repaint();
+        }
+        BufferedImage cam2Image = captureAndSaveImage(cam2, "png", "image-00002.png");
+        if (cam2Image != null) {
+          this.rightScanPanel.imagePanel.setImage(cam2Image);
+          this.rightScanPanel.imagePanel.repaint();
+        }
+        return;
+      }
+//    } catch (CameraNotFoundException ex) {
+//      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.WARNING, "no camera detected");
     } catch (SecurityException ex) {
-      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String)null, ex);
+      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String) null, ex);
     } catch (UsbException ex) {
-      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String)null, (Throwable)ex);
+      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String) null, (Throwable) ex);
     } catch (Exception ex) {
-      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String)null, ex);
-    } 
-    return null;
+      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String) null, ex);
+    }
+    return;
+  }
+
+  private BufferedImage captureAndSaveImage(ICamera camera, String format, String filename) throws IOException, CameraConnectionException, CameraShootException, PTPTimeoutException, GenericCameraException {
+    camera.connect();
+    boolean isConnected = true;
+    camera.setOperationMode(CameraMode.RECORD);
+    camera.setFocusMode(FocusMode.AUTO);
+    BufferedImage image = camera.getPicture();
+    System.out.println("" + image.getWidth() + " x " + image.getWidth() + " pixels");
+    File outputfile = new File(System.getProperty("user.home") + File.separator + filename);
+    ImageIO.write(image, format, outputfile);
+    System.out.println("saved to " + outputfile.getAbsolutePath());
+    camera.disconnect();
+    return image;
+  }
+
+  private String getCameraDescription(ICamera cam1) throws UnsupportedEncodingException, UsbException, UsbDisconnectedException {
+    byte portNumber = cam1.getUsbDevice().getParentUsbPort().getPortNumber();
+    StringBuilder sbCameraName = new StringBuilder();
+    sbCameraName.append(cam1.getUsbDevice().getProductString());
+    sbCameraName.append(" ").append(cam1.getCameraInfo().name());
+    sbCameraName.append(" - Port: ").append(portNumber);
+    return sbCameraName.toString();
   }
 }
