@@ -37,7 +37,7 @@
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
   <SubComponents>
-    <Component class="com.datazuul.bookscanner.core.ThumbnailsAndScanPanel" name="thumbnailsAndScanPanel1">
+    <Component class="com.datazuul.bookscanner.core.ThumbnailsAndScanPanel" name="thumbnailsAndScanPanel">
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
           <BorderConstraints direction="Center"/>

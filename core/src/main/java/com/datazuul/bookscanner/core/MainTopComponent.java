@@ -45,14 +45,14 @@ public final class MainTopComponent extends TopComponent {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
-    thumbnailsAndScanPanel1 = new com.datazuul.bookscanner.core.ThumbnailsAndScanPanel();
+    thumbnailsAndScanPanel = new com.datazuul.bookscanner.core.ThumbnailsAndScanPanel();
 
     setLayout(new java.awt.BorderLayout());
-    add(thumbnailsAndScanPanel1, java.awt.BorderLayout.CENTER);
+    add(thumbnailsAndScanPanel, java.awt.BorderLayout.CENTER);
   }// </editor-fold>//GEN-END:initComponents
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private com.datazuul.bookscanner.core.ThumbnailsAndScanPanel thumbnailsAndScanPanel1;
+  private com.datazuul.bookscanner.core.ThumbnailsAndScanPanel thumbnailsAndScanPanel;
   // End of variables declaration//GEN-END:variables
   @Override
   public void componentOpened() {
