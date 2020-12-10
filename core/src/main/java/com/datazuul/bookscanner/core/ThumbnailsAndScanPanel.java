@@ -3,21 +3,13 @@ package com.datazuul.bookscanner.core;
 import chdk.ptp.java.ICamera;
 import chdk.ptp.java.connection.CameraUsbDevice;
 import chdk.ptp.java.connection.UsbUtils;
-import chdk.ptp.java.exception.CameraConnectionException;
-import chdk.ptp.java.exception.CameraShootException;
-import chdk.ptp.java.exception.GenericCameraException;
-import chdk.ptp.java.exception.PTPTimeoutException;
-import chdk.ptp.java.model.CameraMode;
-import chdk.ptp.java.model.FocusMode;
 import com.datazuul.bookscanner.core.devices.CameraFactory;
+import com.datazuul.bookscanner.core.services.CaptureAndSaveService;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
 import org.openide.DialogDisplayer;
@@ -127,12 +119,23 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         String cam2Description = getCameraDescription(cam2);
         this.rightScanPanel.cameraPanel.setCameraName(cam2Description.toString());
 
-        BufferedImage cam1Image = captureAndSaveImage(cam1, "png", "image-00001.png");
+        CaptureAndSaveService captureAndSaveService1 = new CaptureAndSaveService(cam1, "png", "image-00001.png");
+        CaptureAndSaveService captureAndSaveService2 = new CaptureAndSaveService(cam2, "png", "image-00002.png");
+
+        // do parallel two camera shots using multithreading
+        Thread thread1 = new Thread(captureAndSaveService1);
+        Thread thread2 = new Thread(captureAndSaveService2);
+        thread1.start();
+        thread2.start();
+        thread1.join();
+        thread2.join();
+
+        BufferedImage cam1Image = captureAndSaveService1.getBufferedImage();
         if (cam1Image != null) {
           this.leftScanPanel.imagePanel.setImage(cam1Image);
           this.leftScanPanel.imagePanel.repaint();
         }
-        BufferedImage cam2Image = captureAndSaveImage(cam2, "png", "image-00002.png");
+        BufferedImage cam2Image = captureAndSaveService2.getBufferedImage();
         if (cam2Image != null) {
           this.rightScanPanel.imagePanel.setImage(cam2Image);
           this.rightScanPanel.imagePanel.repaint();
@@ -149,20 +152,6 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
       Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String) null, ex);
     }
     return;
-  }
-
-  private BufferedImage captureAndSaveImage(ICamera camera, String format, String filename) throws IOException, CameraConnectionException, CameraShootException, PTPTimeoutException, GenericCameraException {
-    camera.connect();
-    boolean isConnected = true;
-    camera.setOperationMode(CameraMode.RECORD);
-    camera.setFocusMode(FocusMode.AUTO);
-    BufferedImage image = camera.getPicture();
-    System.out.println("" + image.getWidth() + " x " + image.getWidth() + " pixels");
-    File outputfile = new File(System.getProperty("user.home") + File.separator + filename);
-    ImageIO.write(image, format, outputfile);
-    System.out.println("saved to " + outputfile.getAbsolutePath());
-    camera.disconnect();
-    return image;
   }
 
   private String getCameraDescription(ICamera cam1) throws UnsupportedEncodingException, UsbException, UsbDisconnectedException {
