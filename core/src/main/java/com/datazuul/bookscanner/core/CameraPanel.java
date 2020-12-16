@@ -1,6 +1,17 @@
 package com.datazuul.bookscanner.core;
 
+import chdk.ptp.java.ICamera;
+import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.GenericCameraException;
+import chdk.ptp.java.exception.PTPTimeoutException;
+import java.io.UnsupportedEncodingException;
+import javax.usb.UsbDisconnectedException;
+import javax.usb.UsbException;
+import org.openide.util.Exceptions;
+
 public class CameraPanel extends javax.swing.JPanel {
+
+  private boolean zoomSliderInitialized;
 
   /**
    * Creates new form CameraPanel
@@ -21,16 +32,112 @@ public class CameraPanel extends javax.swing.JPanel {
   private void initComponents() {
 
     cameraName = new javax.swing.JLabel();
-
-    setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
+    zoomSlider = new javax.swing.JSlider();
+    zoomLabel = new javax.swing.JLabel();
 
     cameraName.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
     cameraName.setText("- no camera selected -");
-    add(cameraName);
+
+    zoomSlider.setMajorTickSpacing(5);
+    zoomSlider.setMinorTickSpacing(1);
+    zoomSlider.setPaintLabels(true);
+    zoomSlider.setPaintTicks(true);
+    zoomSlider.setSnapToTicks(true);
+    zoomSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+      public void stateChanged(javax.swing.event.ChangeEvent evt) {
+        zoomSliderStateChanged(evt);
+      }
+    });
+
+    zoomLabel.setText("Zoom:");
+
+    javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+    this.setLayout(layout);
+    layout.setHorizontalGroup(
+      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(layout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(layout.createSequentialGroup()
+            .addComponent(cameraName)
+            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addGroup(layout.createSequentialGroup()
+            .addComponent(zoomLabel)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(zoomSlider, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addContainerGap())))
+    );
+    layout.setVerticalGroup(
+      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(layout.createSequentialGroup()
+        .addGap(15, 15, 15)
+        .addComponent(cameraName)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(zoomLabel)
+          .addComponent(zoomSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addGap(0, 0, 0))
+    );
   }// </editor-fold>//GEN-END:initComponents
+
+  private void zoomSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_zoomSliderStateChanged
+    int zoom = zoomSlider.getValue();
+    try {
+      if (zoomSliderInitialized && zoom != camera.getZoom()) {
+        camera.setZoom(zoom);
+      }
+    } catch (PTPTimeoutException | GenericCameraException ex) {
+      Exceptions.printStackTrace(ex);
+    }
+  }//GEN-LAST:event_zoomSliderStateChanged
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JLabel cameraName;
+  private javax.swing.JLabel zoomLabel;
+  private javax.swing.JSlider zoomSlider;
   // End of variables declaration//GEN-END:variables
+
+  private ICamera camera;
+
+  public ICamera getCamera() {
+    return camera;
+  }
+
+  public void setCamera(ICamera camera) {
+    this.camera = camera;
+    if (!this.camera.isConnected()) {
+      try {
+        this.camera.connect();
+      } catch (CameraConnectionException ex) {
+        Exceptions.printStackTrace(ex);
+      }
+    }
+    try {
+      String cameraDescription = getCameraDescription(this.camera);
+      setCameraName(cameraDescription);
+    } catch (UnsupportedEncodingException | UsbException | UsbDisconnectedException ex) {
+      Exceptions.printStackTrace(ex);
+    }
+    try {
+      zoomSliderInitialized = false;
+      zoomSlider.setMinimum(0);
+      zoomSlider.setMinorTickSpacing(1);
+      zoomSlider.setMaximum(this.camera.getZoomSteps());
+      zoomSlider.setPaintLabels(true);
+      zoomSlider.setValue(this.camera.getZoom());
+      zoomSliderInitialized = true;
+    } catch (PTPTimeoutException | GenericCameraException ex) {
+      Exceptions.printStackTrace(ex);
+    }
+  }
+
+  private String getCameraDescription(ICamera camera) throws UnsupportedEncodingException, UsbException, UsbDisconnectedException {
+    byte portNumber = camera.getUsbDevice().getParentUsbPort().getPortNumber();
+    StringBuilder sbCameraName = new StringBuilder();
+    sbCameraName.append(camera.getUsbDevice().getProductString());
+    sbCameraName.append(" ").append(camera.getCameraInfo().name());
+    sbCameraName.append(" - Port: ").append(portNumber);
+    return sbCameraName.toString();
+  }
 }

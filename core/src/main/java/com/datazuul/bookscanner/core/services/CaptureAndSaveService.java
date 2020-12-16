@@ -30,15 +30,21 @@ public class CaptureAndSaveService implements Runnable {
   @Override
   public void run() {
     try {
-      camera.connect();
+      if (!camera.isConnected()) {
+        camera.connect();
+      }
       camera.setOperationMode(CameraMode.RECORD);
       camera.setFocusMode(FocusMode.AUTO);
       BufferedImage image = camera.getPicture();
       System.out.println("" + image.getWidth() + " x " + image.getWidth() + " pixels");
+
+      // save full size scan
       File outputfile = new File(System.getProperty("user.home") + File.separator + filename);
       ImageIO.write(image, format, outputfile);
       System.out.println("saved to " + outputfile.getAbsolutePath());
-      camera.disconnect();
+
+      // save thumbnail
+//      camera.disconnect();
       this.bufferedImage = image;
     } catch (GenericCameraException | PTPTimeoutException | IOException ex) {
       throw new RuntimeException(ex);

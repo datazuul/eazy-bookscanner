@@ -3,10 +3,10 @@ package com.datazuul.bookscanner.core;
 import chdk.ptp.java.ICamera;
 import chdk.ptp.java.connection.CameraUsbDevice;
 import chdk.ptp.java.connection.UsbUtils;
+import chdk.ptp.java.exception.CameraConnectionException;
 import com.datazuul.bookscanner.core.devices.CameraFactory;
 import com.datazuul.bookscanner.core.services.CaptureAndSaveService;
 import java.awt.image.BufferedImage;
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,14 +14,77 @@ import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.Exceptions;
 
 public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
+  private ICamera cam1;
+  private ICamera cam2;
+  
   /**
    * Creates new form ThumbnailsAndScanPanel
    */
   public ThumbnailsAndScanPanel() {
+    initCameras();
     initComponents();
+    if (cam1 != null && cam2 != null) {
+      try {
+        this.leftScanPanel.setCamera(cam1);
+        this.rightScanPanel.setCamera(cam2);
+      } catch (UsbDisconnectedException ex) {
+        Exceptions.printStackTrace(ex);
+      }
+    }
+  }
+
+  void destroy() throws CameraConnectionException {
+    if (cam1 != null && cam1.isConnected()) {
+      cam1.disconnect();
+    }
+    if (cam2 != null && cam2.isConnected()) {
+      cam2.disconnect();
+    }
+  }
+
+  private void initCameras() {
+    try {
+      Collection<CameraUsbDevice> cameras = UsbUtils.listAttachedCameras();
+      for (CameraUsbDevice cameraUsbDevice : cameras) {
+        System.out.println(cameraUsbDevice);
+      }
+      if (cameras.isEmpty() || cameras.size() == 1) {
+        int camerasCount = cameras.size();
+        String message;
+        if (camerasCount == 0) {
+          message = "No cameras ";
+        } else {
+          message = "Only one camera ";
+        }
+        NotifyDescriptor d = new NotifyDescriptor(
+                message + "found. Please attach two cameras before retrying again.", // Dialog message
+                "Warning", // Dialog title
+                NotifyDescriptor.DEFAULT_OPTION, // Buttons
+                NotifyDescriptor.WARNING_MESSAGE, // Symbol
+                null, // Own buttons as Object[]
+                null); // Additional buttons as Object[]
+        DialogDisplayer.getDefault().notify(d);
+        return;
+      }
+
+      // now we have two cameras (or more) connected
+      cam1 = CameraFactory.getCamera((CameraUsbDevice) cameras.toArray()[0]);
+      cam2 = CameraFactory.getCamera((CameraUsbDevice) cameras.toArray()[1]);
+    } catch (SecurityException | UsbException ex) {
+      Exceptions.printStackTrace(ex);
+      NotifyDescriptor d = new NotifyDescriptor(
+              "Error getting USB cameras: " + ex.getMessage(), // Dialog message
+              "Error", // Dialog title
+              NotifyDescriptor.DEFAULT_OPTION, // Buttons
+              NotifyDescriptor.ERROR_MESSAGE, // Symbol
+              null, // Own buttons as Object[]
+              null); // Additional buttons as Object[]
+      DialogDisplayer.getDefault().notify(d);
+    }
   }
 
   /**
@@ -85,40 +148,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
   private void shoot() {
     try {
-      Collection<CameraUsbDevice> cameras = UsbUtils.listAttachedCameras();
-      for (CameraUsbDevice cameraUsbDevice : cameras) {
-        System.out.println(cameraUsbDevice);
-      }
-      if (cameras.isEmpty() || cameras.size() == 1) {
-        int camerasCount = cameras.size();
-        String message;
-        if (camerasCount == 0) {
-          message = "No cameras ";
-        } else {
-          message = "Only one camera ";
-        }
-        NotifyDescriptor d = new NotifyDescriptor(
-                message + "found. Please attach two cameras before retrying again.", // Dialog message
-                "Warning", // Dialog title
-                NotifyDescriptor.DEFAULT_OPTION, // Buttons
-                NotifyDescriptor.WARNING_MESSAGE, // Symbol
-                null, // Own buttons as Object[]
-                null); // Additional buttons as Object[]
-        DialogDisplayer.getDefault().notify(d);
-        return;
-      }
-
-      // now we have two cameras (or more) connected
-      ICamera cam1 = CameraFactory.getCamera((CameraUsbDevice) cameras.toArray()[0]);
-      ICamera cam2 = CameraFactory.getCamera((CameraUsbDevice) cameras.toArray()[1]);
-
       if (cam1 != null && cam2 != null) {
-        String cam1Description = getCameraDescription(cam1);
-        this.leftScanPanel.cameraPanel.setCameraName(cam1Description.toString());
-
-        String cam2Description = getCameraDescription(cam2);
-        this.rightScanPanel.cameraPanel.setCameraName(cam2Description.toString());
-
         CaptureAndSaveService captureAndSaveService1 = new CaptureAndSaveService(cam1, "png", "image-00001.png");
         CaptureAndSaveService captureAndSaveService2 = new CaptureAndSaveService(cam2, "png", "image-00002.png");
 
@@ -144,22 +174,9 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
       }
 //    } catch (CameraNotFoundException ex) {
 //      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.WARNING, "no camera detected");
-    } catch (SecurityException ex) {
-      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String) null, ex);
-    } catch (UsbException ex) {
-      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String) null, (Throwable) ex);
-    } catch (Exception ex) {
+    } catch (SecurityException | InterruptedException ex) {
       Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String) null, ex);
     }
     return;
-  }
-
-  private String getCameraDescription(ICamera cam1) throws UnsupportedEncodingException, UsbException, UsbDisconnectedException {
-    byte portNumber = cam1.getUsbDevice().getParentUsbPort().getPortNumber();
-    StringBuilder sbCameraName = new StringBuilder();
-    sbCameraName.append(cam1.getUsbDevice().getProductString());
-    sbCameraName.append(" ").append(cam1.getCameraInfo().name());
-    sbCameraName.append(" - Port: ").append(portNumber);
-    return sbCameraName.toString();
   }
 }

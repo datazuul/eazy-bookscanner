@@ -1,5 +1,7 @@
 package com.datazuul.bookscanner.core;
 
+import chdk.ptp.java.ICamera;
+
 public class ScanPanel extends javax.swing.JPanel {
 
   /**
@@ -41,4 +43,15 @@ public class ScanPanel extends javax.swing.JPanel {
   protected com.datazuul.bookscanner.core.CameraPanel cameraPanel;
   protected com.datazuul.bookscanner.core.ImagePanel imagePanel;
   // End of variables declaration//GEN-END:variables
+
+  private ICamera camera;
+
+  public ICamera getCamera() {
+    return camera;
+  }
+
+  public void setCamera(ICamera camera) {
+    this.camera = camera;
+    cameraPanel.setCamera(camera);
+  }
 }
