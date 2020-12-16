@@ -29,8 +29,11 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     initComponents();
     if (cam1 != null && cam2 != null) {
       try {
-        this.leftScanPanel.setCamera(cam1);
-        this.rightScanPanel.setCamera(cam2);
+        leftScanPanel.setCamera(cam1);
+//        leftScanPanel.startLiveView();
+        
+        rightScanPanel.setCamera(cam2);
+//        rightScanPanel.startLiveView();
       } catch (UsbDisconnectedException ex) {
         Exceptions.printStackTrace(ex);
       }
@@ -147,6 +150,8 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   // End of variables declaration//GEN-END:variables
 
   private void shoot() {
+    leftScanPanel.stopLiveView();
+    rightScanPanel.stopLiveView();
     try {
       if (cam1 != null && cam2 != null) {
         CaptureAndSaveService captureAndSaveService1 = new CaptureAndSaveService(cam1, "png", "image-00001.png");

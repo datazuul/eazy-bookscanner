@@ -1,6 +1,7 @@
 package com.datazuul.bookscanner.core;
 
 import chdk.ptp.java.ICamera;
+import com.datazuul.bookscanner.core.services.LiveCaptureService;
 
 public class ScanPanel extends javax.swing.JPanel {
 
@@ -45,6 +46,7 @@ public class ScanPanel extends javax.swing.JPanel {
   // End of variables declaration//GEN-END:variables
 
   private ICamera camera;
+  private Thread threadView;
 
   public ICamera getCamera() {
     return camera;
@@ -53,5 +55,19 @@ public class ScanPanel extends javax.swing.JPanel {
   public void setCamera(ICamera camera) {
     this.camera = camera;
     cameraPanel.setCamera(camera);
+  }
+
+  public void startLiveView() {
+    if (threadView == null) {
+      threadView = new Thread(new LiveCaptureService(camera, imagePanel));
+      threadView.start();
+    }
+    threadView.run();
+  }
+
+  public void stopLiveView() {
+    if (threadView != null) {
+      threadView.interrupt();
+    }
   }
 }

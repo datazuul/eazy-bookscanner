@@ -106,6 +106,8 @@ public class CameraPanel extends javax.swing.JPanel {
 
   public void setCamera(ICamera camera) {
     this.camera = camera;
+
+    // connect camera
     if (!this.camera.isConnected()) {
       try {
         this.camera.connect();
@@ -113,12 +115,16 @@ public class CameraPanel extends javax.swing.JPanel {
         Exceptions.printStackTrace(ex);
       }
     }
+
+    // set camera name
     try {
       String cameraDescription = getCameraDescription(this.camera);
       setCameraName(cameraDescription);
     } catch (UnsupportedEncodingException | UsbException | UsbDisconnectedException ex) {
       Exceptions.printStackTrace(ex);
     }
+
+    // init zoom slider
     try {
       zoomSliderInitialized = false;
       zoomSlider.setMinimum(0);
