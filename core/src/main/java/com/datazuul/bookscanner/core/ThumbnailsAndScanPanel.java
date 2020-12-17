@@ -4,9 +4,11 @@ import chdk.ptp.java.ICamera;
 import chdk.ptp.java.connection.CameraUsbDevice;
 import chdk.ptp.java.connection.UsbUtils;
 import chdk.ptp.java.exception.CameraConnectionException;
+import chdk.ptp.java.exception.GenericCameraException;
+import chdk.ptp.java.exception.PTPTimeoutException;
+import chdk.ptp.java.model.CameraMode;
 import com.datazuul.bookscanner.core.devices.CameraFactory;
-import com.datazuul.bookscanner.core.services.CaptureAndSaveService;
-import java.awt.image.BufferedImage;
+import com.datazuul.bookscanner.core.services.CaptureAndSaveWorker;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +22,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
   private ICamera cam1;
   private ICamera cam2;
-  
+
   /**
    * Creates new form ThumbnailsAndScanPanel
    */
@@ -30,10 +32,10 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     if (cam1 != null && cam2 != null) {
       try {
         leftScanPanel.setCamera(cam1);
-//        leftScanPanel.startLiveView();
-        
+        leftScanPanel.startLiveView();
+
         rightScanPanel.setCamera(cam2);
-//        rightScanPanel.startLiveView();
+        rightScanPanel.startLiveView();
       } catch (UsbDisconnectedException ex) {
         Exceptions.printStackTrace(ex);
       }
@@ -76,7 +78,11 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
       // now we have two cameras (or more) connected
       cam1 = CameraFactory.getCamera((CameraUsbDevice) cameras.toArray()[0]);
+      cam1.connect();
+      cam1.setOperationMode(CameraMode.RECORD);
       cam2 = CameraFactory.getCamera((CameraUsbDevice) cameras.toArray()[1]);
+      cam2.connect();
+      cam2.setOperationMode(CameraMode.RECORD);
     } catch (SecurityException | UsbException ex) {
       Exceptions.printStackTrace(ex);
       NotifyDescriptor d = new NotifyDescriptor(
@@ -87,6 +93,10 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
               null, // Own buttons as Object[]
               null); // Additional buttons as Object[]
       DialogDisplayer.getDefault().notify(d);
+    } catch (CameraConnectionException ex) {
+      Exceptions.printStackTrace(ex);
+    } catch (PTPTimeoutException | GenericCameraException ex) {
+      Exceptions.printStackTrace(ex);
     }
   }
 
@@ -154,32 +164,25 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     rightScanPanel.stopLiveView();
     try {
       if (cam1 != null && cam2 != null) {
-        CaptureAndSaveService captureAndSaveService1 = new CaptureAndSaveService(cam1, "png", "image-00001.png");
-        CaptureAndSaveService captureAndSaveService2 = new CaptureAndSaveService(cam2, "png", "image-00002.png");
+        // FIXME: workaround to make sure live view is not blocking cams/connection
+//        if (cam1.isConnected()) {
+//          cam1.disconnect();
+//        }
+//        if (cam2.isConnected()) {
+//          cam2.disconnect();
+//        }
 
-        // do parallel two camera shots using multithreading
-        Thread thread1 = new Thread(captureAndSaveService1);
-        Thread thread2 = new Thread(captureAndSaveService2);
-        thread1.start();
-        thread2.start();
-        thread1.join();
-        thread2.join();
+        CaptureAndSaveWorker captureAndSaveService1 = new CaptureAndSaveWorker(cam1, "png", "image-00001.png", leftScanPanel.imagePanel);
+        CaptureAndSaveWorker captureAndSaveService2 = new CaptureAndSaveWorker(cam2, "png", "image-00002.png", rightScanPanel.imagePanel);
 
-        BufferedImage cam1Image = captureAndSaveService1.getBufferedImage();
-        if (cam1Image != null) {
-          this.leftScanPanel.imagePanel.setImage(cam1Image);
-          this.leftScanPanel.imagePanel.repaint();
-        }
-        BufferedImage cam2Image = captureAndSaveService2.getBufferedImage();
-        if (cam2Image != null) {
-          this.rightScanPanel.imagePanel.setImage(cam2Image);
-          this.rightScanPanel.imagePanel.repaint();
-        }
+        captureAndSaveService1.execute();
+        captureAndSaveService2.execute();
+
         return;
       }
 //    } catch (CameraNotFoundException ex) {
 //      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.WARNING, "no camera detected");
-    } catch (SecurityException | InterruptedException ex) {
+    } catch (SecurityException ex) {
       Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.SEVERE, (String) null, ex);
     }
     return;

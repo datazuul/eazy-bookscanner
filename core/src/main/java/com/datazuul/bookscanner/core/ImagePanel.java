@@ -1,6 +1,5 @@
 package com.datazuul.bookscanner.core;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -39,6 +38,7 @@ public class ImagePanel extends javax.swing.JPanel {
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   // End of variables declaration//GEN-END:variables
+  @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     if (this.image != null) {
@@ -49,10 +49,11 @@ public class ImagePanel extends javax.swing.JPanel {
 
   public void setImage(BufferedImage inputImage) {
     BufferedImage img = inputImage;
-    Dimension targetSize = new Dimension(getWidth(), getHeight());
-    boolean needsScaling = !(new Dimension(img.getWidth(), img.getHeight())).equals(targetSize);
-    if (needsScaling) {
-      img = Scalr.resize(img, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, targetSize.width, targetSize.height, new java.awt.image.BufferedImageOp[0]);
+    final int targetWidth = this.getWidth();
+    final int targetHeight = this.getHeight();
+    boolean needsScaling = img.getWidth() != targetWidth || img.getHeight() != targetHeight;
+    if (needsScaling && targetWidth > 0 && targetHeight > 0) {
+      img = Scalr.resize(img, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, targetWidth, targetHeight, new java.awt.image.BufferedImageOp[0]);
     }
     this.image = img;
   }

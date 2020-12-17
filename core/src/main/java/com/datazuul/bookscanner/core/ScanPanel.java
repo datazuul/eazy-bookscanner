@@ -1,7 +1,7 @@
 package com.datazuul.bookscanner.core;
 
 import chdk.ptp.java.ICamera;
-import com.datazuul.bookscanner.core.services.LiveCaptureService;
+import com.datazuul.bookscanner.core.services.LiveCaptureWorker;
 
 public class ScanPanel extends javax.swing.JPanel {
 
@@ -46,7 +46,7 @@ public class ScanPanel extends javax.swing.JPanel {
   // End of variables declaration//GEN-END:variables
 
   private ICamera camera;
-  private Thread threadView;
+  private LiveCaptureWorker liveCaptureWorker;
 
   public ICamera getCamera() {
     return camera;
@@ -58,16 +58,20 @@ public class ScanPanel extends javax.swing.JPanel {
   }
 
   public void startLiveView() {
-    if (threadView == null) {
-      threadView = new Thread(new LiveCaptureService(camera, imagePanel));
-      threadView.start();
-    }
-    threadView.run();
+    // FIXME do nothing because we have camera access connections when switching between live and capture
+//    if (liveCaptureWorker == null) {
+//      liveCaptureWorker = new LiveCaptureWorker(camera, imagePanel);
+//    }
+//    liveCaptureWorker.execute();
   }
 
   public void stopLiveView() {
-    if (threadView != null) {
-      threadView.interrupt();
-    }
+    // FIXME do nothing because we have camera access connections when switching between live and capture
+//    if (liveCaptureWorker != null) {
+//      liveCaptureWorker.cancel(true);
+//      while (!liveCaptureWorker.isCancelled()) {
+//        System.out.print(".");
+//      }
+//    }
   }
 }

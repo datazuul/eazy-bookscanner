@@ -5,30 +5,31 @@ import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
+import com.datazuul.bookscanner.core.ImagePanel;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
+import javax.swing.SwingWorker;
+import org.openide.util.Exceptions;
 
-public class CaptureAndSaveService implements Runnable {
+public class CaptureAndSaveWorker extends SwingWorker<BufferedImage, Void> {
 
-  private BufferedImage bufferedImage;
   private final ICamera camera;
   private final String filename;
   private final String format;
+  private ImagePanel imagePanel;
 
-  public CaptureAndSaveService(ICamera camera, String format, String filename) {
+  public CaptureAndSaveWorker(ICamera camera, String format, String filename, ImagePanel imagePanel) {
     this.camera = camera;
     this.filename = filename;
     this.format = format;
-  }
-
-  public BufferedImage getBufferedImage() {
-    return bufferedImage;
+    this.imagePanel = imagePanel;
   }
 
   @Override
-  public void run() {
+  protected BufferedImage doInBackground() throws Exception {
     try {
       if (!camera.isConnected()) {
         camera.connect();
@@ -45,9 +46,21 @@ public class CaptureAndSaveService implements Runnable {
 
       // save thumbnail
 //      camera.disconnect();
-      this.bufferedImage = image;
+      return image;
     } catch (GenericCameraException | PTPTimeoutException | IOException ex) {
       throw new RuntimeException(ex);
     }
   }
+
+  @Override
+  protected void done() {
+    try {
+      BufferedImage image = get();
+      imagePanel.setImage(image);
+      imagePanel.repaint();
+    } catch (InterruptedException | ExecutionException ex) {
+      // if interrupted do nothing
+    }
+  }
+
 }

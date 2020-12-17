@@ -38,7 +38,8 @@ public class CameraPanel extends javax.swing.JPanel {
     cameraName.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
     cameraName.setText("- no camera selected -");
 
-    zoomSlider.setMajorTickSpacing(5);
+    zoomSlider.setMajorTickSpacing(1);
+    zoomSlider.setMaximum(10);
     zoomSlider.setMinorTickSpacing(1);
     zoomSlider.setPaintLabels(true);
     zoomSlider.setPaintTicks(true);
@@ -83,8 +84,13 @@ public class CameraPanel extends javax.swing.JPanel {
   private void zoomSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_zoomSliderStateChanged
     int zoom = zoomSlider.getValue();
     try {
-      if (zoomSliderInitialized && zoom != camera.getZoom()) {
-        camera.setZoom(zoom);
+      if (zoomSliderInitialized) {
+        if (zoom != camera.getZoom()) {
+          ScanPanel scanPanel = (ScanPanel) getParent();
+          scanPanel.stopLiveView();
+          camera.setZoom(zoom);
+          scanPanel.startLiveView();
+        }
       }
     } catch (PTPTimeoutException | GenericCameraException ex) {
       Exceptions.printStackTrace(ex);
