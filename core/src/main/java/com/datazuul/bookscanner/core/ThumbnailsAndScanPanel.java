@@ -35,7 +35,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   /**
    * map containing all global actions
    */
-  private HashMap<KeyStroke, Action> actionMap = new HashMap<KeyStroke, Action>();
+//  private HashMap<KeyStroke, Action> actionMap = new HashMap<KeyStroke, Action>();
 
   /**
    * Creates new form ThumbnailsAndScanPanel
@@ -257,15 +257,11 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         thumbnailsScrollPane.revalidate();
         thumbnailsScrollPane.repaint();
         scrollToBottom(thumbnailsScrollPane);
-        return;
       }
-//    } catch (CameraNotFoundException ex) {
-//      Logger.getLogger(ThumbnailsAndScanPanel.class.getName()).log(Level.WARNING, "no camera detected");
     } catch (SecurityException ex) {
       Logger.getLogger(ThumbnailsAndScanPanel.class
               .getName()).log(Level.SEVERE, (String) null, ex);
     }
-    return;
   }
 
   private void scrollToBottom(JScrollPane scrollPane) {
