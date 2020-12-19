@@ -1,12 +1,9 @@
 package com.datazuul.bookscanner.core;
 
-import javax.swing.border.BevelBorder;
-
 public class ThumbnailsPanel extends javax.swing.JPanel {
 
   public ThumbnailsPanel() {
     initComponents();
-    setBorder(new BevelBorder(BevelBorder.RAISED));
   }
 
   /**
@@ -18,6 +15,9 @@ public class ThumbnailsPanel extends javax.swing.JPanel {
 
     leftImagePanel = new com.datazuul.bookscanner.core.ImagePanel();
     rightImagePanel = new com.datazuul.bookscanner.core.ImagePanel();
+
+    setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+    setMaximumSize(new java.awt.Dimension(400, 150));
 
     javax.swing.GroupLayout leftImagePanelLayout = new javax.swing.GroupLayout(leftImagePanel);
     leftImagePanel.setLayout(leftImagePanelLayout);
@@ -48,18 +48,18 @@ public class ThumbnailsPanel extends javax.swing.JPanel {
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addComponent(leftImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(rightImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addContainerGap())
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
-        .addGap(15, 15, 15)
+        .addContainerGap()
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(rightImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addComponent(leftImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addContainerGap(15, Short.MAX_VALUE))
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
   }// </editor-fold>//GEN-END:initComponents
 
