@@ -1,4 +1,4 @@
-package com.datazuul.bookscanner.core.services;
+package com.datazuul.bookscanner.core.workers;
 
 import chdk.ptp.java.ICamera;
 import chdk.ptp.java.exception.CameraConnectionException;
