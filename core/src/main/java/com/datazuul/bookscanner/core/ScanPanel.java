@@ -2,6 +2,7 @@ package com.datazuul.bookscanner.core;
 
 import chdk.ptp.java.ICamera;
 import com.datazuul.bookscanner.core.services.LiveCaptureWorker;
+import java.awt.image.BufferedImage;
 
 public class ScanPanel extends javax.swing.JPanel {
 
@@ -55,6 +56,10 @@ public class ScanPanel extends javax.swing.JPanel {
   public void setCamera(ICamera camera) {
     this.camera = camera;
     cameraPanel.setCamera(camera);
+  }
+
+  void setImage(BufferedImage image) {
+    imagePanel.setImage(image);
   }
 
   public void startLiveView() {

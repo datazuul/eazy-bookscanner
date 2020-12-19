@@ -43,18 +43,31 @@ public class ImagePanel extends javax.swing.JPanel {
     super.paintComponent(g);
     if (this.image != null) {
       Graphics2D g2 = (Graphics2D) g;
-      g2.drawImage(this.image, null, 0, (getHeight() - this.image.getHeight()) / 2);
+      g2.drawImage(this.image, null, (this.getWidth() - this.image.getWidth()) / 2, (this.getHeight() - this.image.getHeight()) / 2);
     }
   }
 
   public void setImage(BufferedImage inputImage) {
+    if (inputImage == null) {
+      // happens when left right exchange button pressed before first images taken
+      this.image = null;
+      return;
+    }
     BufferedImage img = inputImage;
     final int targetWidth = this.getWidth();
     final int targetHeight = this.getHeight();
-    boolean needsScaling = img.getWidth() != targetWidth || img.getHeight() != targetHeight;
-    if (needsScaling && targetWidth > 0 && targetHeight > 0) {
-      img = Scalr.resize(img, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, targetWidth, targetHeight, new java.awt.image.BufferedImageOp[0]);
+    if (targetWidth > 0 && targetHeight > 0) {
+      boolean needsScaling = img.getWidth() > targetWidth || img.getHeight() > targetHeight;
+      if (needsScaling && targetWidth > 0 && targetHeight > 0) {
+        BufferedImage resizedImage = Scalr.resize(img, Scalr.Method.BALANCED, Scalr.Mode.AUTOMATIC, targetWidth, targetHeight, new java.awt.image.BufferedImageOp[0]);
+        img.flush(); // see javadoc of rotate method...
+        img = resizedImage;
+      }
+      this.image = img;
     }
-    this.image = img;
+  }
+  
+  public BufferedImage getImage() {
+    return this.image;
   }
 }
