@@ -6,6 +6,7 @@ import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
 import chdk.ptp.java.model.FocusMode;
 import com.datazuul.bookscanner.core.ImagePanel;
+import com.datazuul.bookscanner.core.ThumbnailPanel;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -21,16 +22,20 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
   private final String filename;
   private final String format;
   private final ImagePanel imagePanelFull;
-  private final ImagePanel imagePanelThumbnail;
+  private final int number;
   private final int rotationDegrees;
+  private final String targetDirectory;
+  private final ThumbnailPanel thumbnailPanel;
 
-  public CaptureAndSaveWorker(ICamera camera, String format, String filename, int rotationDegrees, ImagePanel imagePanelFull, ImagePanel imagePanelThumbnail) {
+  public CaptureAndSaveWorker(ICamera camera, String targetDirectory, String format, int number, String filename, int rotationDegrees, ImagePanel imagePanelFull, ThumbnailPanel thumbnailPanel) {
     this.camera = camera;
     this.filename = filename;
     this.format = format;
     this.imagePanelFull = imagePanelFull;
-    this.imagePanelThumbnail = imagePanelThumbnail;
+    this.thumbnailPanel = thumbnailPanel;
+    this.number = number;
     this.rotationDegrees = rotationDegrees;
+    this.targetDirectory = targetDirectory;
   }
 
   @Override
@@ -79,7 +84,6 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
       }
       System.out.println("after rotate: " + rotatedImage.getWidth() + " x " + rotatedImage.getHeight() + " pixels");
 
-      String targetDirectory = System.getProperty("user.home");
       // save full size scan
       File outputfile = new File(targetDirectory + File.separator + filename);
       ImageIO.write(rotatedImage, format, outputfile);
@@ -110,8 +114,10 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
       imagePanelFull.setImage(imageAndThumbnail.getFullsizeImage());
       imagePanelFull.repaint();
 
-      imagePanelThumbnail.setImage(imageAndThumbnail.getThumbnailImage());
-      imagePanelThumbnail.repaint();
+      thumbnailPanel.getLabel().setText(String.valueOf(number));
+      thumbnailPanel.setNumber(number);
+      thumbnailPanel.getImagePanel().setImage(imageAndThumbnail.getThumbnailImage());
+      thumbnailPanel.repaint();
     } catch (InterruptedException | ExecutionException ex) {
       // if interrupted do nothing
     }
@@ -122,7 +128,7 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
     private final BufferedImage fullsizeImage;
     private final BufferedImage thumbnailImage;
 
-    public ImageAndThumbnail(BufferedImage fullsizeImage, BufferedImage thumbnailImage) {
+    protected ImageAndThumbnail(BufferedImage fullsizeImage, BufferedImage thumbnailImage) {
       this.fullsizeImage = fullsizeImage;
       this.thumbnailImage = thumbnailImage;
     }

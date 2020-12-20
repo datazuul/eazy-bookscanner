@@ -13,67 +13,32 @@ public class ThumbnailsPanel extends javax.swing.JPanel {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
-    leftImagePanel = new com.datazuul.bookscanner.core.ImagePanel();
-    rightImagePanel = new com.datazuul.bookscanner.core.ImagePanel();
+    leftThumbnailPanel = new com.datazuul.bookscanner.core.ThumbnailPanel();
+    rightThumbnailPanel = new com.datazuul.bookscanner.core.ThumbnailPanel();
 
     setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
     setMaximumSize(new java.awt.Dimension(400, 150));
+    setPreferredSize(new java.awt.Dimension(200, 150));
+    setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.X_AXIS));
 
-    javax.swing.GroupLayout leftImagePanelLayout = new javax.swing.GroupLayout(leftImagePanel);
-    leftImagePanel.setLayout(leftImagePanelLayout);
-    leftImagePanelLayout.setHorizontalGroup(
-      leftImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 100, Short.MAX_VALUE)
-    );
-    leftImagePanelLayout.setVerticalGroup(
-      leftImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 100, Short.MAX_VALUE)
-    );
+    leftThumbnailPanel.setPreferredSize(new java.awt.Dimension(100, 150));
+    add(leftThumbnailPanel);
 
-    javax.swing.GroupLayout rightImagePanelLayout = new javax.swing.GroupLayout(rightImagePanel);
-    rightImagePanel.setLayout(rightImagePanelLayout);
-    rightImagePanelLayout.setHorizontalGroup(
-      rightImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 100, Short.MAX_VALUE)
-    );
-    rightImagePanelLayout.setVerticalGroup(
-      rightImagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 100, Short.MAX_VALUE)
-    );
-
-    javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-    this.setLayout(layout);
-    layout.setHorizontalGroup(
-      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(layout.createSequentialGroup()
-        .addContainerGap()
-        .addComponent(leftImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addComponent(rightImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap())
-    );
-    layout.setVerticalGroup(
-      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(layout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(rightImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(leftImagePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-    );
+    rightThumbnailPanel.setPreferredSize(new java.awt.Dimension(100, 150));
+    add(rightThumbnailPanel);
   }// </editor-fold>//GEN-END:initComponents
 
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private com.datazuul.bookscanner.core.ImagePanel leftImagePanel;
-  private com.datazuul.bookscanner.core.ImagePanel rightImagePanel;
+  private com.datazuul.bookscanner.core.ThumbnailPanel leftThumbnailPanel;
+  private com.datazuul.bookscanner.core.ThumbnailPanel rightThumbnailPanel;
   // End of variables declaration//GEN-END:variables
 
-  public ImagePanel getLeftImagePanel() {
-    return leftImagePanel;
+  public ThumbnailPanel getLeftThumbnailPanel() {
+    return leftThumbnailPanel;
   }
 
-  public ImagePanel getRightImagePanel() {
-    return rightImagePanel;
+  public ThumbnailPanel getRightThumbnailPanel() {
+    return rightThumbnailPanel;
   }
 }

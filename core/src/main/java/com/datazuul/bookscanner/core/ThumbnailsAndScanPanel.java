@@ -20,6 +20,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.usb.UsbDisconnectedException;
 import javax.usb.UsbException;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
@@ -28,26 +29,32 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
   private ICamera cam1;
   private ICamera cam2;
+  private ICamera leftCamera;
+  private ICamera rightCamera;
+
+  private int leftNumber = 1;
+  private int rightNumber = 2;
 
   /**
    * map containing all global actions
    */
 //  private HashMap<KeyStroke, Action> actionMap = new HashMap<KeyStroke, Action>();
-
   /**
    * Creates new form ThumbnailsAndScanPanel
    */
   public ThumbnailsAndScanPanel() {
-    initCameras();
     initComponents();
+    initCameras();
 //    thumbnailsContainerPanel.add(Box.createRigidArea(new Dimension(150,10)));
 
     if (cam1 != null && cam2 != null) {
+      leftCamera = cam1;
+      rightCamera = cam2;
       try {
-        leftScanPanel.setCamera(cam1);
+        leftScanPanel.setCamera(leftCamera);
         leftScanPanel.startLiveView();
 
-        rightScanPanel.setCamera(cam2);
+        rightScanPanel.setCamera(rightCamera);
         rightScanPanel.startLiveView();
       } catch (UsbDisconnectedException ex) {
         Exceptions.printStackTrace(ex);
@@ -138,6 +145,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     thumbnailsScrollPane.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
     thumbnailsScrollPane.setHorizontalScrollBar(null);
     thumbnailsScrollPane.setMinimumSize(new java.awt.Dimension(200, 200));
+    thumbnailsScrollPane.setPreferredSize(new java.awt.Dimension(236, 300));
 
     thumbnailsContainerPanel.setMaximumSize(new java.awt.Dimension(300, 100000));
     thumbnailsContainerPanel.setMinimumSize(new java.awt.Dimension(300, 0));
@@ -200,15 +208,20 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   }//GEN-LAST:event_shootButtonActionPerformed
 
   private void exchangeScanPanelsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exchangeScanPanelsBtnActionPerformed
-    ICamera leftCamera = leftScanPanel.getCamera();
-    BufferedImage leftImage = leftScanPanel.imagePanel.getImage();
-    ICamera rightCamera = rightScanPanel.getCamera();
-    BufferedImage rightImage = rightScanPanel.imagePanel.getImage();
+    if (leftCamera == cam1) {
+      leftCamera = cam2;
+      rightCamera = cam1;
+    } else {
+      leftCamera = cam1;
+      rightCamera = cam2;
+    }
 
     leftScanPanel.setCamera(rightCamera);
+    BufferedImage rightImage = rightScanPanel.imagePanel.getImage();
     leftScanPanel.setImage(rightImage);
 
     rightScanPanel.setCamera(leftCamera);
+    BufferedImage leftImage = leftScanPanel.imagePanel.getImage();
     rightScanPanel.setImage(leftImage);
   }//GEN-LAST:event_exchangeScanPanelsBtnActionPerformed
 
@@ -226,7 +239,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
   private void shoot() {
     try {
-      if (cam1 != null && cam2 != null) {
+      if (leftCamera != null && rightCamera != null) {
         leftScanPanel.stopLiveView();
         rightScanPanel.stopLiveView();
 
@@ -241,14 +254,21 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 //        }
         // create new thumbnailPanel to be filled
         ThumbnailsPanel thumbnailsPanel = new ThumbnailsPanel();
-        CaptureAndSaveWorker captureAndSaveService1 = new CaptureAndSaveWorker(cam1, "png", "image-00001.png", leftScanRotationDegrees, leftScanPanel.imagePanel, thumbnailsPanel.getLeftImagePanel());
-        CaptureAndSaveWorker captureAndSaveService2 = new CaptureAndSaveWorker(cam2, "png", "image-00002.png", rightScanRotationDegrees, rightScanPanel.imagePanel, thumbnailsPanel.getRightImagePanel());
 
+        String targetDirectory = System.getProperty("user.home");
+        String imageFormat = "png";
+        String filenameExtension = ".png";
+        String leftFilename = "image-" + StringUtils.leftPad(String.valueOf(leftNumber), 5, '0') + filenameExtension;
+        String rightFilename = "image-" + StringUtils.leftPad(String.valueOf(rightNumber), 5, '0') + filenameExtension;
+
+        CaptureAndSaveWorker captureAndSaveService1 = new CaptureAndSaveWorker(leftCamera, targetDirectory, imageFormat, leftNumber, leftFilename, leftScanRotationDegrees, leftScanPanel.imagePanel, thumbnailsPanel.getLeftThumbnailPanel());
+        CaptureAndSaveWorker captureAndSaveService2 = new CaptureAndSaveWorker(rightCamera, targetDirectory, imageFormat, rightNumber, rightFilename, rightScanRotationDegrees, rightScanPanel.imagePanel, thumbnailsPanel.getRightThumbnailPanel());
         captureAndSaveService1.execute();
         captureAndSaveService2.execute();
+        leftNumber += 2;
+        rightNumber += 2;
 
         thumbnailsContainerPanel.add(thumbnailsPanel);
-
         thumbnailsContainerPanel.revalidate();
         thumbnailsContainerPanel.repaint();
         thumbnailsScrollPane.revalidate();
