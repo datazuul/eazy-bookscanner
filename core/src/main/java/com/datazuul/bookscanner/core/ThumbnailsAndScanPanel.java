@@ -216,8 +216,8 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
       rightCamera = cam2;
     }
 
-    leftScanPanel.setCamera(rightCamera);
-    rightScanPanel.setCamera(leftCamera);
+    leftScanPanel.setCamera(leftCamera);
+    rightScanPanel.setCamera(rightCamera);
 
     BufferedImage rightImage = rightScanPanel.imagePanel.getImage();
     BufferedImage leftImage = leftScanPanel.imagePanel.getImage();
