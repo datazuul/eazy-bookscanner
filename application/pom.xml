@@ -5,12 +5,12 @@
     
   <parent>
     <groupId>com.datazuul</groupId>
-    <artifactId>datazuul-bookscanner-parent</artifactId>
+    <artifactId>eazy-bookscanner-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>datazuul-bookscanner-app</name>
-  <artifactId>datazuul-bookscanner-app</artifactId>
+  <name>Eazy BookScanner (app)</name>
+  <artifactId>eazy-bookscanner-app</artifactId>
   <packaging>nbm-application</packaging>
 
   <properties>
@@ -27,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>datazuul-bookscanner-branding</artifactId>
+      <artifactId>eazy-bookscanner-branding</artifactId>
       <version>${project.version}</version>
     </dependency>
     <!-- NbModuleSuite functional in RELEASE70 or later: -->
@@ -47,7 +47,7 @@
     -->
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>datazuul-bookscanner-core</artifactId>
+      <artifactId>eazy-bookscanner-core</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

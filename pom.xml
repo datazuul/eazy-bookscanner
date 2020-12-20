@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <name>datazuul-bookscanner-parent</name>
+  <name>Eazy BookScanner</name>
   <groupId>com.datazuul</groupId>
-  <artifactId>datazuul-bookscanner-parent</artifactId>
+  <artifactId>eazy-bookscanner-parent</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 

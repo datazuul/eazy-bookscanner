@@ -4,12 +4,12 @@
 
   <parent>
     <groupId>com.datazuul</groupId>
-    <artifactId>datazuul-bookscanner-parent</artifactId>
+    <artifactId>eazy-bookscanner-parent</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>datazuul-bookscanner-core</name>
-  <artifactId>datazuul-bookscanner-core</artifactId>
+  <name>Eazy BookScanner (core)</name>
+  <artifactId>eazy-bookscanner-core</artifactId>
   <packaging>nbm</packaging>
 
   <properties>
@@ -17,11 +17,11 @@
   </properties>
   
   <dependencies>
-    <dependency>
+<!--    <dependency>
       <groupId>com.datazuul.apps</groupId>
       <artifactId>datazuul-bookscan</artifactId>
       <version>0.1.0-SNAPSHOT</version>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>com.neuronrobotics</groupId>
       <artifactId>CHDK-PTP-Java</artifactId>
