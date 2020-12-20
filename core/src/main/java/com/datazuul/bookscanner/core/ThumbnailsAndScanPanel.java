@@ -217,12 +217,18 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     }
 
     leftScanPanel.setCamera(rightCamera);
-    BufferedImage rightImage = rightScanPanel.imagePanel.getImage();
-    leftScanPanel.setImage(rightImage);
-
     rightScanPanel.setCamera(leftCamera);
+
+    BufferedImage rightImage = rightScanPanel.imagePanel.getImage();
     BufferedImage leftImage = leftScanPanel.imagePanel.getImage();
+    
+    leftScanPanel.setImage(rightImage);
     rightScanPanel.setImage(leftImage);
+    
+    leftScanPanel.repaint();
+    rightScanPanel.repaint();
+    
+    // TODO exchange thumbnails and saved filenames...
   }//GEN-LAST:event_exchangeScanPanelsBtnActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
