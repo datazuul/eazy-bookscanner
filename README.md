@@ -15,6 +15,20 @@ Usage for two digital cameras like described at <http://diybookscanner.org/>.
 
 * Java 1.8 or above
 
+## Installation
+
+* Download ZIP <./dist/eazy-bookscanner-app-0.1.0-SNAPSHOT.zip>
+* Unzip and change into folder.
+
+## Usage
+
+* Connect cameras to USB-ports
+* Turn on cameras
+* Run `bin/eazybookscanner`
+* Take test shots in "Setup Mode" until adjustings and desired setup are feasible
+* Uncheck "Setup Mode"
+* Start scanning
+
 ## Supported cameras
 
 * CHDK Canon Digital cameras
