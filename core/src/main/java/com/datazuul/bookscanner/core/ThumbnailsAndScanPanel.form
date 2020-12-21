@@ -66,6 +66,16 @@
             </Property>
           </Properties>
         </Component>
+        <Component class="javax.swing.JComboBox" name="formatNamesDropdown">
+          <Properties>
+            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+              <StringArray count="0"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+          </AuxValues>
+        </Component>
         <Component class="javax.swing.JCheckBox" name="setupModeCheckbox">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -74,6 +84,7 @@
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Setup Mode"/>
             <Property name="toolTipText" type="java.lang.String" value="uncheck to start saving images into project folder"/>
+            <Property name="alignmentX" type="float" value="1.0"/>
           </Properties>
           <Events>
             <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="setupModeCheckboxStateChanged"/>

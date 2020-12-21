@@ -10,15 +10,20 @@ import chdk.ptp.java.model.CameraMode;
 import com.datazuul.bookscanner.core.devices.CameraFactory;
 import com.datazuul.bookscanner.core.workers.CaptureAndSaveWorker;
 import java.awt.Adjustable;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.usb.UsbDisconnectedException;
@@ -52,6 +57,16 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     initCameras();
     targetDirectory = System.getProperty("user.home"); // default
     projectDirectoryPathLabel.setText(targetDirectory);
+    
+    String[] formatNames = new String[]{"jpg", "tif", "png"};
+    List<String> supportedFormatNames = new ArrayList<>();
+    for (String formatName : formatNames) {
+      Iterator<ImageWriter> imageWritersByFormatName = ImageIO.getImageWritersByFormatName(formatName);
+      if (imageWritersByFormatName.hasNext()) {
+        supportedFormatNames.add(formatName);
+      }
+    }
+    formatNamesDropdown.setModel(new DefaultComboBoxModel(supportedFormatNames.toArray()));
 
     if (cam1 != null && cam2 != null) {
       leftCamera = cam1;
@@ -154,6 +169,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     projectDirectoryLabel = new javax.swing.JLabel();
     chooseDirectory = new javax.swing.JButton();
     projectDirectoryPathLabel = new javax.swing.JLabel();
+    formatNamesDropdown = new javax.swing.JComboBox<>();
     setupModeCheckbox = new javax.swing.JCheckBox();
     thumbnailsScrollPane = new javax.swing.JScrollPane();
     thumbnailsContainerPanel = new javax.swing.JPanel();
@@ -190,10 +206,13 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     projectDirectoryPathLabel.setPreferredSize(new java.awt.Dimension(500, 20));
     directoryPanel.add(projectDirectoryPathLabel);
 
+    directoryPanel.add(formatNamesDropdown);
+
     setupModeCheckbox.setBackground(new java.awt.Color(255, 255, 0));
     setupModeCheckbox.setSelected(true);
     setupModeCheckbox.setText("Setup Mode");
     setupModeCheckbox.setToolTipText("uncheck to start saving images into project folder");
+    setupModeCheckbox.setAlignmentX(1.0F);
     setupModeCheckbox.addChangeListener(new javax.swing.event.ChangeListener() {
       public void stateChanged(javax.swing.event.ChangeEvent evt) {
         setupModeCheckboxStateChanged(evt);
@@ -345,6 +364,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   private javax.swing.JButton chooseDirectory;
   private javax.swing.JPanel directoryPanel;
   private javax.swing.JButton exchangeScanPanelsBtn;
+  private javax.swing.JComboBox<String> formatNamesDropdown;
   private com.datazuul.bookscanner.core.ScanPanel leftScanPanel;
   private javax.swing.JPanel middlePanel;
   private javax.swing.JLabel projectDirectoryLabel;
@@ -375,8 +395,9 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         // create new thumbnailPanel to be filled
         ThumbnailsPanel thumbnailsPanel = new ThumbnailsPanel();
 
-        String imageFormat = "png";
-        String filenameExtension = ".png";
+        String selectedFormat = (String) formatNamesDropdown.getSelectedItem();
+        String imageFormat = selectedFormat;
+        String filenameExtension = "." + selectedFormat;
         String leftFilename = "image-" + StringUtils.leftPad(String.valueOf(leftNumber), 5, '0') + filenameExtension;
         String rightFilename = "image-" + StringUtils.leftPad(String.valueOf(rightNumber), 5, '0') + filenameExtension;
 
