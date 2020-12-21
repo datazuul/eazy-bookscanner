@@ -36,7 +36,7 @@ public final class MainTopComponent extends TopComponent {
     initComponents();
     setName(Bundle.CTL_MainTopComponent());
     setToolTipText(Bundle.HINT_MainTopComponent());
-
+    
   }
 
   /**

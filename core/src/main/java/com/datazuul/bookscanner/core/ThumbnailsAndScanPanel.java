@@ -25,6 +25,7 @@ import javax.usb.UsbException;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileChooserBuilder;
 import org.openide.util.Exceptions;
 
 public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
@@ -43,18 +44,11 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   private String lastLeftFilename;
   private String lastRightFilename;
 
-  /**
-   * map containing all global actions
-   */
-//  private HashMap<KeyStroke, Action> actionMap = new HashMap<KeyStroke, Action>();
-  /**
-   * Creates new form ThumbnailsAndScanPanel
-   */
   public ThumbnailsAndScanPanel() {
     initComponents();
     initCameras();
     targetDirectory = System.getProperty("user.home"); // default
-//    thumbnailsContainerPanel.add(Box.createRigidArea(new Dimension(150,10)));
+    projectDirectoryPathLabel.setText(targetDirectory);
 
     if (cam1 != null && cam2 != null) {
       leftCamera = cam1;
@@ -153,6 +147,10 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
+    directoryPanel = new javax.swing.JPanel();
+    projectDirectoryLabel = new javax.swing.JLabel();
+    chooseDirectory = new javax.swing.JButton();
+    projectDirectoryPathLabel = new javax.swing.JLabel();
     thumbnailsScrollPane = new javax.swing.JScrollPane();
     thumbnailsContainerPanel = new javax.swing.JPanel();
     scanPanels = new javax.swing.JPanel();
@@ -164,6 +162,31 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     shootButton = new javax.swing.JButton();
 
     setLayout(new java.awt.BorderLayout());
+
+    directoryPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
+    projectDirectoryLabel.setText("Project directory:");
+    directoryPanel.add(projectDirectoryLabel);
+
+    chooseDirectory.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/folder.gif"))); // NOI18N
+    chooseDirectory.setToolTipText("Choose directory for captured images for this project");
+    chooseDirectory.setIconTextGap(0);
+    chooseDirectory.setMaximumSize(new java.awt.Dimension(35, 29));
+    chooseDirectory.setMinimumSize(new java.awt.Dimension(25, 25));
+    chooseDirectory.setPreferredSize(new java.awt.Dimension(29, 29));
+    chooseDirectory.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        chooseDirectoryActionPerformed(evt);
+      }
+    });
+    directoryPanel.add(chooseDirectory);
+
+    projectDirectoryPathLabel.setMaximumSize(new java.awt.Dimension(32000, 35));
+    projectDirectoryPathLabel.setMinimumSize(new java.awt.Dimension(200, 20));
+    projectDirectoryPathLabel.setPreferredSize(new java.awt.Dimension(500, 20));
+    directoryPanel.add(projectDirectoryPathLabel);
+
+    add(directoryPanel, java.awt.BorderLayout.NORTH);
 
     thumbnailsScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     thumbnailsScrollPane.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -278,11 +301,24 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     }
   }//GEN-LAST:event_exchangeScanPanelsBtnActionPerformed
 
+  private void chooseDirectoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseDirectoryActionPerformed
+    File projectDir = new FileChooserBuilder("project-dir").setTitle("Open File").
+                setDefaultWorkingDirectory(new File(targetDirectory)).setApproveText("Open").showOpenDialog();
+    if (projectDir != null && projectDir.isDirectory() && projectDir.canWrite()) {
+      targetDirectory = projectDir.getAbsolutePath();
+      projectDirectoryPathLabel.setText(targetDirectory);
+    }
+  }//GEN-LAST:event_chooseDirectoryActionPerformed
+
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JPanel bottomPanel;
+  private javax.swing.JButton chooseDirectory;
+  private javax.swing.JPanel directoryPanel;
   private javax.swing.JButton exchangeScanPanelsBtn;
   private com.datazuul.bookscanner.core.ScanPanel leftScanPanel;
   private javax.swing.JPanel middlePanel;
+  private javax.swing.JLabel projectDirectoryLabel;
+  private javax.swing.JLabel projectDirectoryPathLabel;
   private com.datazuul.bookscanner.core.ScanPanel rightScanPanel;
   private javax.swing.JPanel scanPanels;
   private javax.swing.JButton shootButton;
