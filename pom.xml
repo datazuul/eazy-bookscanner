@@ -17,7 +17,7 @@
 
   <properties>
     <netbeans.version>RELEASE90</netbeans.version>
-    <brandingToken>datazuulbookscanner</brandingToken>
+    <brandingToken>eazybookscanner</brandingToken>
   </properties>
   
   <repositories>
