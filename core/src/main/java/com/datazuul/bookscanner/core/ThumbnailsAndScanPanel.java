@@ -10,9 +10,11 @@ import chdk.ptp.java.model.CameraMode;
 import com.datazuul.bookscanner.core.devices.CameraFactory;
 import com.datazuul.bookscanner.core.workers.CaptureAndSaveWorker;
 import java.awt.Adjustable;
+import java.awt.Component;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +36,12 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
   private int leftNumber = 1;
   private int rightNumber = 2;
+  private int nextLeftNumber = 3;
+  private int nextRightNumber = 4;
+
+  private String targetDirectory;
+  private String lastLeftFilename;
+  private String lastRightFilename;
 
   /**
    * map containing all global actions
@@ -45,6 +53,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   public ThumbnailsAndScanPanel() {
     initComponents();
     initCameras();
+    targetDirectory = System.getProperty("user.home"); // default
 //    thumbnailsContainerPanel.add(Box.createRigidArea(new Dimension(150,10)));
 
     if (cam1 != null && cam2 != null) {
@@ -71,6 +80,19 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     if (cam2 != null && cam2.isConnected()) {
       cam2.disconnect();
     }
+  }
+
+  private void exchangeFiles(String file1Path, String file2Path) {
+    File file1 = new File(file1Path);
+    File file1Tmp = new File(file1Path + "-tmp");
+    file1.renameTo(file1Tmp);
+
+    File file2 = new File(file2Path);
+    File file2Tmp = new File(file2Path + "-tmp");
+    file2.renameTo(file2Tmp);
+
+    file1Tmp.renameTo(file2);
+    file2Tmp.renameTo(file1);
   }
 
   private void initCameras() {
@@ -216,19 +238,42 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
       rightCamera = cam2;
     }
 
+    // update scan panels
     leftScanPanel.setCamera(leftCamera);
     rightScanPanel.setCamera(rightCamera);
-
     BufferedImage rightImage = rightScanPanel.imagePanel.getImage();
     BufferedImage leftImage = leftScanPanel.imagePanel.getImage();
-    
     leftScanPanel.setImage(rightImage);
     rightScanPanel.setImage(leftImage);
-    
     leftScanPanel.repaint();
     rightScanPanel.repaint();
-    
-    // TODO exchange thumbnails and saved filenames...
+
+    // update images filenames
+    if (lastLeftFilename != null && lastRightFilename != null) {
+      String pathLeftFile = targetDirectory + File.separator + lastLeftFilename;
+      String pathRightFile = targetDirectory + File.separator + lastRightFilename;
+      exchangeFiles(pathLeftFile, pathRightFile);
+    }
+
+    // update latest thumbnails panel (if already one exists)
+    Component[] thumbnailsPanels = thumbnailsContainerPanel.getComponents();
+    if (thumbnailsPanels != null && thumbnailsPanels.length > 0) {
+      ThumbnailsPanel lastThumbnailsPanel = (ThumbnailsPanel) thumbnailsPanels[thumbnailsPanels.length - 1];
+      ThumbnailPanel leftThumbnailPanel = lastThumbnailsPanel.getLeftThumbnailPanel();
+      ThumbnailPanel rightThumbnailPanel = lastThumbnailsPanel.getRightThumbnailPanel();
+      BufferedImage leftThumbnailImage = leftThumbnailPanel.getImagePanel().getImage();
+      BufferedImage rightThumbnailImage = rightThumbnailPanel.getImagePanel().getImage();
+      leftThumbnailPanel.getImagePanel().setImage(rightThumbnailImage);
+      rightThumbnailPanel.getImagePanel().setImage(leftThumbnailImage);
+      leftThumbnailPanel.repaint();
+      rightThumbnailPanel.repaint();
+      // update thumbnails filenames
+      if (lastLeftFilename != null && lastRightFilename != null) {
+        String pathLeftFile = targetDirectory + File.separator + "thumbnails" + File.separator + lastLeftFilename;
+        String pathRightFile = targetDirectory + File.separator + "thumbnails" + File.separator + lastRightFilename;
+        exchangeFiles(pathLeftFile, pathRightFile);
+      }
+    }
   }//GEN-LAST:event_exchangeScanPanelsBtnActionPerformed
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -261,7 +306,6 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         // create new thumbnailPanel to be filled
         ThumbnailsPanel thumbnailsPanel = new ThumbnailsPanel();
 
-        String targetDirectory = System.getProperty("user.home");
         String imageFormat = "png";
         String filenameExtension = ".png";
         String leftFilename = "image-" + StringUtils.leftPad(String.valueOf(leftNumber), 5, '0') + filenameExtension;
@@ -271,8 +315,23 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         CaptureAndSaveWorker captureAndSaveService2 = new CaptureAndSaveWorker(rightCamera, targetDirectory, imageFormat, rightNumber, rightFilename, rightScanRotationDegrees, rightScanPanel.imagePanel, thumbnailsPanel.getRightThumbnailPanel());
         captureAndSaveService1.execute();
         captureAndSaveService2.execute();
+
+        // capturing and saving has been done, prepare for next shot
+        lastLeftFilename = leftFilename;
+        lastRightFilename = rightFilename;
         leftNumber += 2;
         rightNumber += 2;
+
+        // handle usecase where a previous shot has been selected to be reshot
+        // and therefore these previous (lower) numbers were used for images
+        if (leftNumber < nextLeftNumber) {
+          leftNumber = nextLeftNumber;
+        }
+        if (rightNumber < nextRightNumber) {
+          rightNumber = nextRightNumber;
+        }
+        nextLeftNumber = leftNumber;
+        nextRightNumber = rightNumber;
 
         thumbnailsContainerPanel.add(thumbnailsPanel);
         thumbnailsContainerPanel.revalidate();
