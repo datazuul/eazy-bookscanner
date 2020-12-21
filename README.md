@@ -17,8 +17,8 @@ Usage for two digital cameras like described at <http://diybookscanner.org/>.
 
 ## Installation
 
-* Download ZIP <./dist/eazy-bookscanner-app-0.1.0-SNAPSHOT.zip>
-* Unzip and change into folder.
+* Download ZIP from <https://github.com/datazuul/eazy-bookscanner/tree/main/dist>
+* Unzip into installation destination.
 
 ## Usage
 
