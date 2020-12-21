@@ -116,7 +116,9 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
                 NotifyDescriptor.WARNING_MESSAGE, // Symbol
                 null, // Own buttons as Object[]
                 null); // Additional buttons as Object[]
-        DialogDisplayer.getDefault().notify(d);
+        if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
+          initCameras();
+        }
         return;
       }
 
