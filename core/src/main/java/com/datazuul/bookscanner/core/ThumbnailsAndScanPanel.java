@@ -10,6 +10,7 @@ import chdk.ptp.java.model.CameraMode;
 import com.datazuul.bookscanner.core.devices.CameraFactory;
 import com.datazuul.bookscanner.core.workers.CaptureAndSaveWorker;
 import java.awt.Adjustable;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
@@ -43,6 +44,8 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   private String targetDirectory;
   private String lastLeftFilename;
   private String lastRightFilename;
+
+  private boolean setupMode = true;
 
   public ThumbnailsAndScanPanel() {
     initComponents();
@@ -151,6 +154,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     projectDirectoryLabel = new javax.swing.JLabel();
     chooseDirectory = new javax.swing.JButton();
     projectDirectoryPathLabel = new javax.swing.JLabel();
+    setupModeCheckbox = new javax.swing.JCheckBox();
     thumbnailsScrollPane = new javax.swing.JScrollPane();
     thumbnailsContainerPanel = new javax.swing.JPanel();
     scanPanels = new javax.swing.JPanel();
@@ -185,6 +189,17 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     projectDirectoryPathLabel.setMinimumSize(new java.awt.Dimension(200, 20));
     projectDirectoryPathLabel.setPreferredSize(new java.awt.Dimension(500, 20));
     directoryPanel.add(projectDirectoryPathLabel);
+
+    setupModeCheckbox.setBackground(new java.awt.Color(255, 255, 0));
+    setupModeCheckbox.setSelected(true);
+    setupModeCheckbox.setText("Setup Mode");
+    setupModeCheckbox.setToolTipText("uncheck to start saving images into project folder");
+    setupModeCheckbox.addChangeListener(new javax.swing.event.ChangeListener() {
+      public void stateChanged(javax.swing.event.ChangeEvent evt) {
+        setupModeCheckboxStateChanged(evt);
+      }
+    });
+    directoryPanel.add(setupModeCheckbox);
 
     add(directoryPanel, java.awt.BorderLayout.NORTH);
 
@@ -303,12 +318,27 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
   private void chooseDirectoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseDirectoryActionPerformed
     File projectDir = new FileChooserBuilder("project-dir").setTitle("Open File").
-                setDefaultWorkingDirectory(new File(targetDirectory)).setApproveText("Open").showOpenDialog();
+            setDefaultWorkingDirectory(new File(targetDirectory)).setApproveText("Open").showOpenDialog();
     if (projectDir != null && projectDir.isDirectory() && projectDir.canWrite()) {
       targetDirectory = projectDir.getAbsolutePath();
       projectDirectoryPathLabel.setText(targetDirectory);
     }
   }//GEN-LAST:event_chooseDirectoryActionPerformed
+
+  private void setupModeCheckboxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_setupModeCheckboxStateChanged
+    setupMode = setupModeCheckbox.isSelected();
+    if (setupMode) {
+      setupModeCheckbox.setOpaque(true);
+    } else {
+      setupModeCheckbox.setOpaque(false);
+      setupModeCheckbox.setEnabled(false);
+    }
+    // reset in either changed state
+    leftNumber = 1;
+    rightNumber = 2;
+    nextLeftNumber = 3;
+    nextRightNumber = 4;
+  }//GEN-LAST:event_setupModeCheckboxStateChanged
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JPanel bottomPanel;
@@ -321,6 +351,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   private javax.swing.JLabel projectDirectoryPathLabel;
   private com.datazuul.bookscanner.core.ScanPanel rightScanPanel;
   private javax.swing.JPanel scanPanels;
+  private javax.swing.JCheckBox setupModeCheckbox;
   private javax.swing.JButton shootButton;
   private javax.swing.JPanel thumbnailsContainerPanel;
   private javax.swing.JScrollPane thumbnailsScrollPane;
@@ -349,8 +380,8 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         String leftFilename = "image-" + StringUtils.leftPad(String.valueOf(leftNumber), 5, '0') + filenameExtension;
         String rightFilename = "image-" + StringUtils.leftPad(String.valueOf(rightNumber), 5, '0') + filenameExtension;
 
-        CaptureAndSaveWorker captureAndSaveService1 = new CaptureAndSaveWorker(leftCamera, targetDirectory, imageFormat, leftNumber, leftFilename, leftScanRotationDegrees, leftScanPanel.imagePanel, thumbnailsPanel.getLeftThumbnailPanel());
-        CaptureAndSaveWorker captureAndSaveService2 = new CaptureAndSaveWorker(rightCamera, targetDirectory, imageFormat, rightNumber, rightFilename, rightScanRotationDegrees, rightScanPanel.imagePanel, thumbnailsPanel.getRightThumbnailPanel());
+        CaptureAndSaveWorker captureAndSaveService1 = new CaptureAndSaveWorker(leftCamera, setupMode, targetDirectory, imageFormat, leftNumber, leftFilename, leftScanRotationDegrees, leftScanPanel.imagePanel, thumbnailsPanel.getLeftThumbnailPanel());
+        CaptureAndSaveWorker captureAndSaveService2 = new CaptureAndSaveWorker(rightCamera, setupMode, targetDirectory, imageFormat, rightNumber, rightFilename, rightScanRotationDegrees, rightScanPanel.imagePanel, thumbnailsPanel.getRightThumbnailPanel());
         captureAndSaveService1.execute();
         captureAndSaveService2.execute();
 
@@ -371,12 +402,14 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         nextLeftNumber = leftNumber;
         nextRightNumber = rightNumber;
 
-        thumbnailsContainerPanel.add(thumbnailsPanel);
-        thumbnailsContainerPanel.revalidate();
-        thumbnailsContainerPanel.repaint();
-        thumbnailsScrollPane.revalidate();
-        thumbnailsScrollPane.repaint();
-        scrollToBottom(thumbnailsScrollPane);
+        if (!setupMode) {
+          thumbnailsContainerPanel.add(thumbnailsPanel);
+          thumbnailsContainerPanel.revalidate();
+          thumbnailsContainerPanel.repaint();
+          thumbnailsScrollPane.revalidate();
+          thumbnailsScrollPane.repaint();
+          scrollToBottom(thumbnailsScrollPane);
+        }
       }
     } catch (SecurityException ex) {
       Logger.getLogger(ThumbnailsAndScanPanel.class

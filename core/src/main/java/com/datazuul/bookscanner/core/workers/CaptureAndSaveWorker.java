@@ -24,10 +24,11 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
   private final ImagePanel imagePanelFull;
   private final int number;
   private final int rotationDegrees;
+  private final boolean setupMode;
   private final String targetDirectory;
   private final ThumbnailPanel thumbnailPanel;
 
-  public CaptureAndSaveWorker(ICamera camera, String targetDirectory, String format, int number, String filename, int rotationDegrees, ImagePanel imagePanelFull, ThumbnailPanel thumbnailPanel) {
+  public CaptureAndSaveWorker(ICamera camera, boolean setupMode, String targetDirectory, String format, int number, String filename, int rotationDegrees, ImagePanel imagePanelFull, ThumbnailPanel thumbnailPanel) {
     this.camera = camera;
     this.filename = filename;
     this.format = format;
@@ -35,6 +36,7 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
     this.thumbnailPanel = thumbnailPanel;
     this.number = number;
     this.rotationDegrees = rotationDegrees;
+    this.setupMode = setupMode;
     this.targetDirectory = targetDirectory;
   }
 
@@ -43,7 +45,7 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
     BufferedImage capturedImage;
     BufferedImage rotatedImage;
     BufferedImage thumbnailImage;
-    
+
     try {
       if (!camera.isConnected()) {
         camera.connect();
@@ -84,24 +86,27 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
       }
       System.out.println("after rotate: " + rotatedImage.getWidth() + " x " + rotatedImage.getHeight() + " pixels");
 
-      // save full size scan
-      File outputfile = new File(targetDirectory + File.separator + filename);
-      ImageIO.write(rotatedImage, format, outputfile);
-      System.out.println("saved to " + outputfile.getAbsolutePath());
+      if (!setupMode) {
+        // save full size scan
+        File outputfile = new File(targetDirectory + File.separator + filename);
+        ImageIO.write(rotatedImage, format, outputfile);
+        System.out.println("saved to " + outputfile.getAbsolutePath());
 
-      // save thumbnail
-      String targetDirectoryThumbnails = targetDirectory + File.separator + "thumbnails";
-      File directory = new File(targetDirectoryThumbnails);
-      if (!directory.exists()) {
-        directory.mkdir();
+        // save thumbnail
+        String targetDirectoryThumbnails = targetDirectory + File.separator + "thumbnails";
+        File directory = new File(targetDirectoryThumbnails);
+        if (!directory.exists()) {
+          directory.mkdir();
+        }
+        File thumbnailOutputfile = new File(targetDirectoryThumbnails + File.separator + filename);
+        thumbnailImage = Scalr.resize(rotatedImage, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, 100, 150, new java.awt.image.BufferedImageOp[0]);
+        ImageIO.write(thumbnailImage, format, thumbnailOutputfile);
+        System.out.println("thumbnail saved to " + thumbnailOutputfile.getAbsolutePath());
+        return new ImageAndThumbnail(rotatedImage, thumbnailImage);
+      } else {
+        return new ImageAndThumbnail(rotatedImage, null);
       }
-      File thumbnailOutputfile = new File(targetDirectoryThumbnails + File.separator + filename);
-      thumbnailImage = Scalr.resize(rotatedImage, Scalr.Method.BALANCED, Scalr.Mode.FIT_TO_WIDTH, 100, 150, new java.awt.image.BufferedImageOp[0]);
-      ImageIO.write(thumbnailImage, format, thumbnailOutputfile);
-      System.out.println("thumbnail saved to " + thumbnailOutputfile.getAbsolutePath());
-      
 //      camera.disconnect();
-      return new ImageAndThumbnail(rotatedImage, thumbnailImage);
     } catch (GenericCameraException | PTPTimeoutException | IOException ex) {
       throw new RuntimeException(ex);
     }
