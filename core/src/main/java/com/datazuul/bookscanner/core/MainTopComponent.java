@@ -1,8 +1,11 @@
 package com.datazuul.bookscanner.core;
 
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
@@ -36,7 +39,6 @@ public final class MainTopComponent extends TopComponent {
     initComponents();
     setName(Bundle.CTL_MainTopComponent());
     setToolTipText(Bundle.HINT_MainTopComponent());
-    
   }
 
   /**
@@ -55,13 +57,21 @@ public final class MainTopComponent extends TopComponent {
   private com.datazuul.bookscanner.core.ThumbnailsAndScanPanel thumbnailsAndScanPanel;
   // End of variables declaration//GEN-END:variables
   @Override
-  public void componentOpened() {
-    // TODO add custom code on component opening
+  protected void componentActivated() {
+    super.componentActivated();
+    Action action = FileUtil.getConfigObject("Actions/Window/org-netbeans-core-windows-actions-ShowEditorOnlyAction.instance", Action.class);
+    action.actionPerformed(new ActionEvent(this, 0, "dummy"));
   }
 
   @Override
   public void componentClosed() {
     // TODO add custom code on component closing
+  }
+
+  @Override
+  protected void componentOpened() {
+    super.componentOpened();
+    requestActive();
   }
 
   void writeProperties(java.util.Properties p) {
