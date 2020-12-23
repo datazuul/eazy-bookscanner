@@ -50,6 +50,8 @@ public class CameraPanel extends javax.swing.JPanel {
     manualFocusRadioButton = new javax.swing.JRadioButton();
     manualFocusSpinner = new javax.swing.JSpinner();
 
+    setMaximumSize(new java.awt.Dimension(32767, 103));
+
     cameraName.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
     cameraName.setText("- no camera selected -");
 
@@ -93,6 +95,8 @@ public class CameraPanel extends javax.swing.JPanel {
 
     focusButtonGroup.add(manualFocusRadioButton);
     manualFocusRadioButton.setText("manual");
+    manualFocusRadioButton.setToolTipText("manual setting of focus not implemented, yet");
+    manualFocusRadioButton.setEnabled(false);
     manualFocusRadioButton.addItemListener(new java.awt.event.ItemListener() {
       public void itemStateChanged(java.awt.event.ItemEvent evt) {
         focusItemChanged(evt);
@@ -192,13 +196,15 @@ public class CameraPanel extends javax.swing.JPanel {
     try {
       if (autoFocusRadioButton.isSelected()) {
         manualFocusSpinner.setEnabled(false);
-        if (camera != null) {
-          this.camera.setFocusMode(FocusMode.AUTO);
-        }
+        // do nothing on change, read settings during shoot()...
+//        if (camera != null) {
+//          this.camera.setFocusMode(FocusMode.AUTO);
+//        }
       } else {
         manualFocusSpinner.setEnabled(true);
         if (camera != null) {
-          this.camera.setFocusMode(FocusMode.MF);
+          // do nothing on change, read settings during shoot()...
+//          this.camera.setFocusMode(FocusMode.MF);
           manualFocusSpinner.setValue(this.camera.getFocus());
         }
       }
@@ -208,14 +214,17 @@ public class CameraPanel extends javax.swing.JPanel {
   }//GEN-LAST:event_focusItemChanged
 
   private void manualFocusSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_manualFocusSpinnerStateChanged
-    if (camera != null) {
-      int focusValue = (int) manualFocusSpinner.getValue();
-      try {
-        this.camera.setFocus(focusValue);
-      } catch (PTPTimeoutException | GenericCameraException ex) {
-        Exceptions.printStackTrace(ex);
-      }
-    }
+    // do nothing on change, read settings during shoot()...
+//    if (camera != null) {
+//      if (manualFocusSpinner.isEnabled()) {
+//        int focusValue = (int) manualFocusSpinner.getValue();
+//        try {
+//          this.camera.setFocus(focusValue);
+//        } catch (PTPTimeoutException | GenericCameraException ex) {
+//          Exceptions.printStackTrace(ex);
+//        }
+//      }
+//    }
   }//GEN-LAST:event_manualFocusSpinnerStateChanged
 
 
@@ -301,8 +310,20 @@ public class CameraPanel extends javax.swing.JPanel {
     StringBuilder sbCameraName = new StringBuilder();
     sbCameraName.append(camera.getUsbDevice().getProductString());
     sbCameraName.append(" ").append(camera.getCameraInfo().name());
-    sbCameraName.append(" - Serial-Nr.: ").append(camera.getUsbDevice().getSerialNumberString());
+//    sbCameraName.append(" - Serial-Nr.: ").append(camera.getUsbDevice().getSerialNumberString()); // too long, breaks UI
     sbCameraName.append(" - Port: ").append(portNumber);
     return sbCameraName.toString();
+  }
+  
+  public FocusMode getFocusMode() {
+    if (autoFocusRadioButton.isSelected()) {
+      return FocusMode.AUTO;
+    } else {
+      return FocusMode.MF;
+    }
+  }
+  
+  public int getManualFocusValue() {
+    return (int) manualFocusSpinner.getValue();
   }
 }

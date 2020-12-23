@@ -7,6 +7,7 @@ import chdk.ptp.java.exception.CameraConnectionException;
 import chdk.ptp.java.exception.GenericCameraException;
 import chdk.ptp.java.exception.PTPTimeoutException;
 import chdk.ptp.java.model.CameraMode;
+import chdk.ptp.java.model.FocusMode;
 import com.datazuul.bookscanner.core.devices.CameraFactory;
 import com.datazuul.bookscanner.core.workers.CaptureAndSaveWorker;
 import java.awt.Adjustable;
@@ -236,6 +237,9 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     add(thumbnailsScrollPane, java.awt.BorderLayout.WEST);
 
     scanPanels.setLayout(new javax.swing.BoxLayout(scanPanels, javax.swing.BoxLayout.X_AXIS));
+
+    leftScanPanel.setAlignmentX(0.5F);
+    leftScanPanel.setPreferredSize(new java.awt.Dimension(511, 800));
     scanPanels.add(leftScanPanel);
 
     exchangeScanPanelsBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/exchange-alt.gif"))); // NOI18N
@@ -380,18 +384,32 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
   private void shoot() {
     try {
       if (leftCamera != null && rightCamera != null) {
-        leftScanPanel.stopLiveView();
-        rightScanPanel.stopLiveView();
-
-        int leftScanRotationDegrees = leftScanPanel.cameraPanel.getRotationDegrees();
-        int rightScanRotationDegrees = rightScanPanel.cameraPanel.getRotationDegrees();
-        // FIXME: workaround to make sure live view is not blocking cams/connection
+// FIXME: workaround to make sure live view is not blocking cams/connection
 //        if (cam1.isConnected()) {
 //          cam1.disconnect();
 //        }
 //        if (cam2.isConnected()) {
 //          cam2.disconnect();
 //        }
+
+        leftScanPanel.stopLiveView();
+        rightScanPanel.stopLiveView();
+
+        
+        int leftManualFocusValue = -1;
+        FocusMode leftFocusMode = leftScanPanel.cameraPanel.getFocusMode();
+        if (leftFocusMode == FocusMode.MF) {
+          leftManualFocusValue = leftScanPanel.cameraPanel.getManualFocusValue();
+        }
+        int leftScanRotationDegrees = leftScanPanel.cameraPanel.getRotationDegrees();
+        
+        int rightManualFocusValue = -1;
+        FocusMode rightFocusMode = rightScanPanel.cameraPanel.getFocusMode();
+        if (rightFocusMode == FocusMode.MF) {
+          rightManualFocusValue = rightScanPanel.cameraPanel.getManualFocusValue();
+        }
+        int rightScanRotationDegrees = rightScanPanel.cameraPanel.getRotationDegrees();
+
         // create new thumbnailPanel to be filled
         ThumbnailsPanel thumbnailsPanel = new ThumbnailsPanel();
 
@@ -401,8 +419,8 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         String leftFilename = "image-" + StringUtils.leftPad(String.valueOf(leftNumber), 5, '0') + filenameExtension;
         String rightFilename = "image-" + StringUtils.leftPad(String.valueOf(rightNumber), 5, '0') + filenameExtension;
 
-        CaptureAndSaveWorker captureAndSaveService1 = new CaptureAndSaveWorker(leftCamera, setupMode, targetDirectory, imageFormat, leftNumber, leftFilename, leftScanRotationDegrees, leftScanPanel.imagePanel, thumbnailsPanel.getLeftThumbnailPanel());
-        CaptureAndSaveWorker captureAndSaveService2 = new CaptureAndSaveWorker(rightCamera, setupMode, targetDirectory, imageFormat, rightNumber, rightFilename, rightScanRotationDegrees, rightScanPanel.imagePanel, thumbnailsPanel.getRightThumbnailPanel());
+        CaptureAndSaveWorker captureAndSaveService1 = new CaptureAndSaveWorker(leftCamera, leftFocusMode, leftManualFocusValue, setupMode, targetDirectory, imageFormat, leftNumber, leftFilename, leftScanRotationDegrees, leftScanPanel.imagePanel, thumbnailsPanel.getLeftThumbnailPanel());
+        CaptureAndSaveWorker captureAndSaveService2 = new CaptureAndSaveWorker(rightCamera, rightFocusMode, rightManualFocusValue, setupMode, targetDirectory, imageFormat, rightNumber, rightFilename, rightScanRotationDegrees, rightScanPanel.imagePanel, thumbnailsPanel.getRightThumbnailPanel());
         captureAndSaveService1.execute();
         captureAndSaveService2.execute();
 

@@ -30,11 +30,11 @@ public class ScanPanel extends javax.swing.JPanel {
     imagePanel.setLayout(imagePanelLayout);
     imagePanelLayout.setHorizontalGroup(
       imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 400, Short.MAX_VALUE)
+      .addGap(0, 493, Short.MAX_VALUE)
     );
     imagePanelLayout.setVerticalGroup(
       imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 285, Short.MAX_VALUE)
+      .addGap(0, 442, Short.MAX_VALUE)
     );
 
     add(imagePanel);
