@@ -20,24 +20,28 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
 
   private final ICamera camera;
   private final String filename;
+  private final FocusMode focusMode;
   private final String format;
   private final ImagePanel imagePanelFull;
+  private final int manualFocusValue;
   private final int number;
   private final int rotationDegrees;
   private final boolean setupMode;
   private final String targetDirectory;
   private final ThumbnailPanel thumbnailPanel;
 
-  public CaptureAndSaveWorker(ICamera camera, boolean setupMode, String targetDirectory, String format, int number, String filename, int rotationDegrees, ImagePanel imagePanelFull, ThumbnailPanel thumbnailPanel) {
+  public CaptureAndSaveWorker(ICamera camera, FocusMode focusMode, int manualFocusValue, boolean setupMode, String targetDirectory, String format, int number, String filename, int rotationDegrees, ImagePanel imagePanelFull, ThumbnailPanel thumbnailPanel) {
     this.camera = camera;
     this.filename = filename;
+    this.focusMode = focusMode;
     this.format = format;
     this.imagePanelFull = imagePanelFull;
-    this.thumbnailPanel = thumbnailPanel;
+    this.manualFocusValue = manualFocusValue;
     this.number = number;
     this.rotationDegrees = rotationDegrees;
     this.setupMode = setupMode;
     this.targetDirectory = targetDirectory;
+    this.thumbnailPanel = thumbnailPanel;
   }
 
   @Override
@@ -51,7 +55,14 @@ public class CaptureAndSaveWorker extends SwingWorker<CaptureAndSaveWorker.Image
         camera.connect();
       }
       camera.setOperationMode(CameraMode.RECORD);
-      camera.setFocusMode(FocusMode.AUTO);
+
+      if (focusMode == FocusMode.AUTO) {
+        camera.setFocusMode(FocusMode.AUTO);
+      }
+      if (focusMode == FocusMode.MF) {
+        camera.setFocusMode(FocusMode.MF);
+        camera.setFocus(manualFocusValue);
+      }
       capturedImage = camera.getPicture();
       System.out.println("before rotate: " + capturedImage.getWidth() + " x " + capturedImage.getHeight() + " pixels");
       if (rotationDegrees != 0) {

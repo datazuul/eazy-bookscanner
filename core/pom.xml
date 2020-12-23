@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datazuul</groupId>
     <artifactId>eazy-bookscanner-parent</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
   </parent>
 
   <name>Eazy BookScanner (core)</name>
@@ -17,11 +17,6 @@
   </properties>
   
   <dependencies>
-<!--    <dependency>
-      <groupId>com.datazuul.apps</groupId>
-      <artifactId>datazuul-bookscan</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
-    </dependency>-->
     <dependency>
       <groupId>com.neuronrobotics</groupId>
       <artifactId>CHDK-PTP-Java</artifactId>
@@ -85,6 +80,11 @@
     <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-openide-filesystems-nb</artifactId>
+      <version>RELEASE90</version>
+    </dependency>
+    <dependency>
+      <groupId>org.netbeans.api</groupId>
+      <artifactId>org-openide-filesystems</artifactId>
       <version>RELEASE90</version>
     </dependency>
   </dependencies>
