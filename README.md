@@ -24,8 +24,10 @@ Usage for two digital cameras like described at <http://diybookscanner.org/>.
 
 * Connect cameras to USB-ports
 * Turn on cameras
+* Change into installation directory of Eazy BookScanner
 * Run `bin/eazybookscanner`
-* Take test shots in "Setup Mode" until adjustings and desired setup are feasible
+* Open project folder (target directory for images)
+* Take test shots in "Setup Mode" until adjustings and desired setup (left/right, zoom, rotation) are feasible
 * Uncheck "Setup Mode"
 * Start scanning
 
