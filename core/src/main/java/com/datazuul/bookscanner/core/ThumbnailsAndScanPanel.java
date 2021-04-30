@@ -16,12 +16,17 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.swing.DefaultComboBoxModel;
@@ -58,7 +63,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     initCameras();
     targetDirectory = System.getProperty("user.home"); // default
     projectDirectoryPathLabel.setText(targetDirectory);
-    
+
     String[] formatNames = new String[]{"jpg", "tif", "png"};
     List<String> supportedFormatNames = new ArrayList<>();
     for (String formatName : formatNames) {
@@ -345,8 +350,37 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
     if (projectDir != null && projectDir.isDirectory() && projectDir.canWrite()) {
       targetDirectory = projectDir.getAbsolutePath();
       projectDirectoryPathLabel.setText(targetDirectory);
+      setImageNumbers();
     }
   }//GEN-LAST:event_chooseDirectoryActionPerformed
+
+  private void setImageNumbers() throws NumberFormatException {
+    // if directory contains images (resumption of previous scan session) get maximum number
+    // and initialize left/right number and next left/right number
+    Path targetDirectoryPath = Path.of(targetDirectory);
+    final File targetDir = targetDirectoryPath.toFile();
+    File[] imageFiles = targetDir.listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(File targetDir, String name) {
+        return name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".tif");
+      }
+    });
+    if (imageFiles != null && imageFiles.length > 0) {
+      Arrays.sort(imageFiles);
+      File imageFileMaxNumber = imageFiles[(imageFiles.length - 1)];
+      String filenameMaxNumber = imageFileMaxNumber.getName();
+      Pattern numberPattern = Pattern.compile("image-[0]*(\\d*)\\..*");
+      Matcher m = numberPattern.matcher(filenameMaxNumber);
+      if (m.find()) {
+        int maxNumber = Integer.valueOf(m.group(1));
+        
+        leftNumber = maxNumber + 1;
+        rightNumber = maxNumber + 2;
+        nextLeftNumber = maxNumber + 3;
+        nextRightNumber = maxNumber + 4;
+      }
+    }
+  }
 
   private void setupModeCheckboxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_setupModeCheckboxStateChanged
     setupMode = setupModeCheckbox.isSelected();
@@ -356,11 +390,9 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
       setupModeCheckbox.setOpaque(false);
       setupModeCheckbox.setEnabled(false);
     }
+    
     // reset in either changed state
-    leftNumber = 1;
-    rightNumber = 2;
-    nextLeftNumber = 3;
-    nextRightNumber = 4;
+    setImageNumbers();
   }//GEN-LAST:event_setupModeCheckboxStateChanged
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -395,14 +427,13 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
         leftScanPanel.stopLiveView();
         rightScanPanel.stopLiveView();
 
-        
         int leftManualFocusValue = -1;
         FocusMode leftFocusMode = leftScanPanel.cameraPanel.getFocusMode();
         if (leftFocusMode == FocusMode.MF) {
           leftManualFocusValue = leftScanPanel.cameraPanel.getManualFocusValue();
         }
         int leftScanRotationDegrees = leftScanPanel.cameraPanel.getRotationDegrees();
-        
+
         int rightManualFocusValue = -1;
         FocusMode rightFocusMode = rightScanPanel.cameraPanel.getFocusMode();
         if (rightFocusMode == FocusMode.MF) {
