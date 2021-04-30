@@ -24,7 +24,10 @@ public class ThumbnailPanel extends javax.swing.JPanel {
 
     imagePanel.setPreferredSize(new java.awt.Dimension(100, 150));
 
+    label.setBackground(new java.awt.Color(255, 255, 255));
     org.openide.awt.Mnemonics.setLocalizedText(label, org.openide.util.NbBundle.getMessage(ThumbnailPanel.class, "ThumbnailPanel.label.text")); // NOI18N
+    label.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
+    label.setOpaque(true);
 
     javax.swing.GroupLayout imagePanelLayout = new javax.swing.GroupLayout(imagePanel);
     imagePanel.setLayout(imagePanelLayout);
