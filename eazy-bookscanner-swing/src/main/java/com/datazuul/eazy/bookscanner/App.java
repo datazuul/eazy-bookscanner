@@ -1,5 +1,6 @@
 package com.datazuul.eazy.bookscanner;
 
+import com.datazuul.eazy.bookscanner.devices.CamerasProperties;
 import com.datazuul.eazy.bookscanner.gui.ThumbnailsAndScanPanel;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -11,10 +12,22 @@ import javax.swing.JMenuItem;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.swing.FontIcon;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 
+/**
+ * Implementing ApplicationRunner interface tells Spring Boot to automatically
+ * call the run method AFTER the application context has been loaded.
+ */
+@SpringBootApplication
+@EnableConfigurationProperties(CamerasProperties.class)
 public class App extends JFrame {
 
   public static final int ICON_SIZE = 20;
+  
+  public static ConfigurableApplicationContext CONTEXT;
 
   public App() {
     initUI();
@@ -71,9 +84,17 @@ public class App extends JFrame {
   }
 
   public static void main(String[] args) {
+    CONTEXT = new SpringApplicationBuilder(App.class).headless(false).run(args);
     EventQueue.invokeLater(() -> {
-      App ex = new App();
+      App ex = CONTEXT.getBean(App.class);
       ex.setVisible(true);
     });
+    
+    logConfig();
+  }
+
+  private static void logConfig() {
+    CamerasProperties props = CONTEXT.getBean(CamerasProperties.class);
+    System.out.println(props);
   }
 }

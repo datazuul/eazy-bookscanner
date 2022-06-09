@@ -232,7 +232,6 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
     scanPanels.setLayout(new javax.swing.BoxLayout(scanPanels, javax.swing.BoxLayout.X_AXIS));
 
-    leftScanPanel.setAlignmentX(0.5F);
     leftScanPanel.setPreferredSize(new java.awt.Dimension(511, 800));
     scanPanels.add(leftScanPanel);
 
@@ -253,6 +252,7 @@ public class ThumbnailsAndScanPanel extends javax.swing.JPanel {
 
     add(scanPanels, java.awt.BorderLayout.CENTER);
 
+    bottomPanel.setPreferredSize(new java.awt.Dimension(59, 70));
     bottomPanel.setLayout(new java.awt.BorderLayout());
 
     shootButton.setBackground(new java.awt.Color(204, 255, 204));

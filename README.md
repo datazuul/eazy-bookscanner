@@ -62,3 +62,4 @@ This app makes usage of
 * NetBeans Platform: <https://netbeans.apache.org/kb/docs/platform/>
 * CHDK-PTP-Java Library: <https://github.com/datazuul/CHDK-PTP-Java>
 * usb4java-javax: <https://github.com/usb4java/usb4java-javax>
+* USB IDs: <http://www.linux-usb.org/usb.ids>

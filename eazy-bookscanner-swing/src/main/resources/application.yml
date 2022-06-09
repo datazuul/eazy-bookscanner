@@ -1,0 +1,24 @@
+cameras:
+  vendors:
+    - id: 0x04a9
+      name: 'Canon, Inc.'
+      products:
+        - id: 0x322a
+          name: 'PowerShot A2200'
+          # The A2200 only has three focus modes (in this order on display):
+          # currentFocusMode in: "Macro" = 4 - "Normal" = 0 - "Infinity" = 3
+          # FocusMode.MACRO (4), "Normal" = FocusMode.AUTO (0), "Infinity" = FocusMode.INF (3)
+          autofocus:
+            # set to "Normal" (there is no AUTO mode) and handle auto focus later during shoot
+            # see https://chdk.fandom.com/wiki/Script_commands#set_aflock
+            # macro
+            - current-mode: 4
+              execute: [LEFT, sleep1000, RIGHT, sleep500, SET, sleep1000]
+            # normal
+            - current-mode: 0
+              execute: []
+            # infinity
+            - current-mode: 3
+              execute: [LEFT, sleep1000, LEFT, sleep500, SET, sleep1000]
+          zoom:
+            pre-execute: [SET_AUTOFOCUS]
