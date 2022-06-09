@@ -13,6 +13,7 @@
     <module>branding</module>
     <module>application</module>
     <module>core</module>
+    <module>eazy-bookscanner-swing</module>
   </modules>
 
   <properties>
