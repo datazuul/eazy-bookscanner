@@ -25,7 +25,7 @@ Usage for two digital cameras like described at <http://diybookscanner.org/>.
 * Connect cameras to USB-ports
 * Turn on cameras
 * Change into installation directory of Eazy BookScanner
-* Run `bin/eazybookscanner`
+* Run `java -jar eazy-bookscanner-1.0.0-SNAPSHOT.jar`
 * Open project folder (target directory for images)
 * Take test shots in "Setup Mode" until adjustings and desired setup (left/right, zoom, rotation) are feasible
 * Uncheck "Setup Mode"
@@ -59,7 +59,7 @@ Please start discussions here: <https://github.com/datazuul/eazy-bookscanner/dis
 
 This app makes usage of
 
-* NetBeans Platform: <https://netbeans.apache.org/kb/docs/platform/>
+* Java Swing GUI: <https://docs.oracle.com/javase/tutorial/uiswing/index.html>
 * CHDK-PTP-Java Library: <https://github.com/datazuul/CHDK-PTP-Java>
 * usb4java-javax: <https://github.com/usb4java/usb4java-javax>
 * USB IDs: <http://www.linux-usb.org/usb.ids>
