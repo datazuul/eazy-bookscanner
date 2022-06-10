@@ -23,11 +23,14 @@ Development was done
 
 Make sure source code at least compiles with `mvn clean install`.
 
-This software is based on [Apache NetBeans Platform ](http://netbeans.apache.org/kb/docs/platform/index.html).
-Main part of application is in submodule `application` and is easy to understand if you are familiar with [Swing](https://docs.oracle.com/javase/tutorial/uiswing/index.html).
+Main part of application is easy to understand if you are familiar with [Swing](https://docs.oracle.com/javase/tutorial/uiswing/index.html).
 
 ## Creating distribution Package
 
-After executing `mvn clean install` in parent package, an executable JAR created in `/target/`, e.g. named `eazy-bookscanner-swing-1.0.0-SNAPSHOT.jar`.
+After executing `mvn clean install` in parent package, an executable JAR created in `/target/`, e.g. named `eazy-bookscanner-1.0.0-SNAPSHOT.jar`.
 
-This package contains the whole application and all dependencies, ready for execution.
+This package contains the whole application and all dependencies, ready for execution with
+
+```
+java -jar eazy-bookscanner-1.0.0-SNAPSHOT.jar
+```
