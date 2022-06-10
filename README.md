@@ -63,3 +63,8 @@ This app makes usage of
 * CHDK-PTP-Java Library: <https://github.com/datazuul/CHDK-PTP-Java>
 * usb4java-javax: <https://github.com/usb4java/usb4java-javax>
 * USB IDs: <http://www.linux-usb.org/usb.ids>
+
+## References
+
+* Swing: https://zetcode.com/javaswing/
+* Icons: https://www.javacodegeeks.com/2020/03/javafx-tip-32-need-icons-use-ikonli.html

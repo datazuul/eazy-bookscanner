@@ -28,25 +28,6 @@ Main part of application is in submodule `application` and is easy to understand
 
 ## Creating distribution Package
 
-After executing `mvn clean install` in parent package, a ZIP-distribution package is created,
-located in `application/target/`, e.g. named `eazy-bookscanner-app-0.2.0-SNAPSHOT.zip`.
+After executing `mvn clean install` in parent package, an executable JAR created in `/target/`, e.g. named `eazy-bookscanner-swing-1.0.0-SNAPSHOT.jar`.
 
-This package contains the whole application and all dependencies, ready for execution after unpacking (see contained `bin` folder).
-
-Problem: Depending on development environment (?) the contained configuration file `etc/eazybookscanner.conf` contains wrong default values.
-
-Solution: Edit file `application/target/eazybookscanner/etc/eazybookscanner.conf` manually and
-make sure that default values are:
-
-```
-default_userdir="${DEFAULT_USERDIR_ROOT}"
-default_cachedir="${DEFAULT_CACHEDIR_ROOT}"
-```
-
-and create ZIP file manually by zipping directory `application/target/eazybookscanner`.
-
-Linux zip example:
-
-```
-$ zip -r eazy-bookscanner-app-0.2.0-SNAPSHOT.zip eazybookscanner/
-```
+This package contains the whole application and all dependencies, ready for execution.
