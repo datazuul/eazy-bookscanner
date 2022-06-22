@@ -8,7 +8,7 @@
     <version>2.6.7</version>
   </parent>
   
-  <name>Eazy BookScanner (Swing)</name>
+  <name>datazuul applications: Eazy BookScanner</name>
   <groupId>com.datazuul.eazy.bookscanner</groupId>
   <artifactId>eazy-bookscanner-swing</artifactId>
   <version>1.0.0-SNAPSHOT</version>
